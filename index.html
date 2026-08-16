@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>财政风险分析平台 - 个人学术研究项目</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<style>
+:root { --bg:#0f1419; --card:#1a212b; --card2:#232c38; --border:#2e3a48; --text:#e8edf2; --muted:#8b98a7; --red:#e05d5d; --yellow:#e0b45d; --green:#5dc47a; --blue:#5d9ce0; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--text); font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; }
+header { padding:24px 32px; border-bottom:1px solid var(--border); background:linear-gradient(135deg,#16202b,#1a212b); }
+header h1 { font-size:22px; font-weight:700; }
+header .sub { color:var(--muted); font-size:13px; margin-top:6px; }
+.container { max-width:1400px; margin:0 auto; padding:24px 32px; }
+.section-title { font-size:17px; font-weight:700; margin:28px 0 14px; display:flex; align-items:center; gap:8px; }
+.section-title .bar { width:4px; height:18px; background:var(--blue); border-radius:2px; }
+.tabs { display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; }
+.notice-box { background:linear-gradient(135deg, rgba(93,156,224,.12), rgba(93,196,122,.08)); border:1px solid rgba(93,156,224,.35); border-radius:10px; padding:14px 18px; margin-bottom:20px; font-size:13px; line-height:1.8; color:var(--text); }
+.notice-box b { color:var(--blue); }
+.tab-btn { padding:8px 18px; border:1px solid var(--border); background:var(--card); color:var(--muted); border-radius:6px; cursor:pointer; font-size:13px; transition:all .2s; }
+.tab-btn:hover { color:var(--text); }
+.tab-btn.active { background:var(--blue); color:#fff; border-color:var(--blue); }
+.panel { display:none; }
+.panel.active { display:block; }
+.overview-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:16px; }
+.city-card { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:18px; cursor:pointer; transition:transform .15s,border-color .2s; }
+.city-card:hover { transform:translateY(-2px); border-color:var(--blue); }
+.city-card .name { font-size:16px; font-weight:700; }
+.city-card .rate { font-size:32px; font-weight:800; margin:8px 0; }
+.city-card .rate.red { color:var(--red); } .city-card .rate.yellow { color:var(--yellow); } .city-card .rate.green { color:var(--green); }
+.city-card .detail { font-size:12px; color:var(--muted); }
+.rate-bar { height:6px; background:var(--card2); border-radius:3px; margin-top:10px; overflow:hidden; }
+.rate-bar .fill { height:100%; border-radius:3px; }
+.chart-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.chart-box { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:16px; }
+.chart-box h3 { font-size:14px; margin-bottom:10px; color:var(--muted); font-weight:600; }
+.chart { width:100%; height:320px; }
+table { width:100%; border-collapse:collapse; font-size:13px; }
+th { background:var(--card2); color:var(--muted); font-weight:600; padding:10px 12px; text-align:left; border-bottom:2px solid var(--border); }
+td { padding:8px 12px; border-bottom:1px solid var(--border); }
+tr:hover td { background:rgba(93,156,224,.06); }
+.light-red { color:var(--red); font-weight:700; }
+.light-yellow { color:var(--yellow); font-weight:700; }
+.light-green { color:var(--green); font-weight:700; }
+.badge { display:inline-block; padding:2px 8px; border-radius:4px; font-size:11px; font-weight:600; }
+.badge-red { background:rgba(224,93,93,.15); color:var(--red); }
+.badge-yellow { background:rgba(224,180,93,.15); color:var(--yellow); }
+.badge-green { background:rgba(93,196,122,.15); color:var(--green); }
+.filters { display:flex; gap:10px; margin-bottom:14px; flex-wrap:wrap; align-items:center; }
+.filters label { font-size:13px; color:var(--muted); }
+.filters select { background:var(--card2); color:var(--text); border:1px solid var(--border); padding:6px 12px; border-radius:6px; font-size:13px; }
+.verify-table td { text-align:center; font-size:12.5px; line-height:1.5; }
+.verify-table td:first-child { text-align:left; font-weight:600; color:var(--muted); }
+.cell-val { font-weight:600; }
+.cell-concl { color:var(--muted); font-size:11.5px; }
+.method-box { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:20px; margin-bottom:16px; }
+.method-box h3 { font-size:15px; margin-bottom:12px; color:var(--blue); }
+.method-box p,.method-box li { font-size:13.5px; line-height:1.8; color:var(--text); }
+.method-box ul { padding-left:20px; }
+.method-box .flow { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin:14px 0; }
+.method-box .step { background:var(--card2); border:1px solid var(--border); padding:8px 14px; border-radius:6px; font-size:12.5px; }
+.method-box .arrow { color:var(--blue); font-weight:700; }
+footer { padding:20px 32px; border-top:1px solid var(--border); color:var(--muted); font-size:12px; text-align:center; margin-top:40px; }
+@media (max-width:900px) { .chart-grid{grid-template-columns:1fr;} .container{padding:16px;} }
+</style>
+</head>
+<body>
+<header>
+  <h1>🏛️ 财政风险分析平台</h1>
+  <div class="sub">市级（苏州/杭州/宁波/广州/深圳 双口径）+ 省级（陕西/宁夏/江苏/安徽）· 决算四本账 + 统计公报 · 110 指标 · 四维风险识别 · 外部数据交叉验证</div>
+</header>
+<div class="container">
+  <div class="notice-box">
+    <b>📋 网站声明：</b>本平台为<b>个人学术研究项目</b>，数据全部来源于各级政府公开信息（财政决算、统计公报、国家统计局等），不涉及任何个人隐私信息；网站无广告、无注册登录、不收集任何访客数据，仅通过授权链接访问，用于科研参考。
+  </div>
+  <div class="tabs" style="margin-top:20px;">
+    <button class="tab-btn active" data-tab="indicator">📐 指标系统</button>
+    <button class="tab-btn" data-tab="province">🗺️ 省级情况</button>
+    <button class="tab-btn" data-tab="city">🏙️ 市级情况</button>
+  </div>
+
+  <!-- ======== 一级：指标系统 ======== -->
+  <div class="panel active" id="indicator">
+    <div class="section-title"><span class="bar"></span>指标体系与方法</div>
+    <div class="method-box">
+      <h3>📐 四层架构</h3>
+      <div class="flow">
+        <span class="step">📁 数据层<br>决算四本账（收入/支出/基金/国资）+ 债务 + 统计公报</span><span class="arrow">→</span>
+        <span class="step">📐 指标层<br>110 指标（宏观税负/人均/占比/赤字）</span><span class="arrow">→</span>
+        <span class="step">🚦 风险层<br>指标/科目/外部/横向 四维</span><span class="arrow">→</span>
+        <span class="step">✅ 判定层<br>红绿灯 + 异常率</span>
+      </div>
+    </div>
+    <div class="method-box">
+      <h3>🔬 3 维交叉验证（核心创新）</h3>
+      <ul>
+        <li><b>市级</b>：契税 ↔ 70城房价指数 / 商品房销售面积（交易量萎缩 vs 少计收入）</li>
+        <li><b>市级</b>：土地增值税 ↔ 土地出让成交价款（土地财政降温 vs 清算延后）</li>
+        <li><b>市级</b>：企业所得税 ↔ 规上工业利润（企业利润增长 vs 应缴未缴）</li>
+        <li><b>市级</b>：财政收入 ↔ 全社会用电量 / 存款余额（经济活性 vs 征管问题）</li>
+        <li><b>省级</b>：决算收入/税收 ↔ 公报收入/税收（口径一致性核验，江苏决算=公报 7,642亿 完全吻合）</li>
+        <li><b>省级</b>：收入增速 ↔ GDP增速（收入弹性）、税收占比结构（60-90% 健康区间）</li>
+      </ul>
+    </div>
+    <div class="method-box">
+      <h3>🚦 判定规则（让数据说话，不做主观打分）</h3>
+      <ul>
+        <li><span class="badge badge-red">🔴 红</span> 偏差 &gt;30% — 严重异常；<span class="badge badge-yellow">🟡 黄</span> 5-30% — 需关注；<span class="badge badge-green">🟢 绿</span> &lt;5% — 正常</li>
+        <li>异常率 = 红灯数 ÷ 可算科目数（不做打分/等级/排名）</li>
+        <li>口径铁律：市本级 vs 全市、全省 vs 省本级严格分离；安徽仅省本级报表（标注说明）</li>
+      </ul>
+    </div>
+    <div class="method-box" style="margin-top:16px;">
+      <h3>🗺️ 覆盖范围（2026-08 现状）</h3>
+      <ul>
+        <li><b>市级</b>：苏州/杭州/宁波/广州/深圳 × 2023-2024 决算 + 统计公报 + 第2层外部数据（70城房价/土地出让/工业利润/存款/用电量）</li>
+        <li><b>省级</b>：陕西/宁夏/江苏/安徽 × 2023-2024 决算（全页入库 1,239 页/843 表）+ 统计公报（4 省 60 条指标）</li>
+        <li>持续扩展：更多省份与城市将逐步加入</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ======== 一级：省级情况 ======== -->
+  <div class="panel" id="province">
+    <div class="section-title"><span class="bar"></span>省级统计公报关键指标（2024）</div>
+    <div style="overflow-x:auto; background:var(--card); border:1px solid var(--border); border-radius:10px; margin-bottom:20px;">
+      <table id="provIndTable"><thead></thead><tbody></tbody></table>
+    </div>
+    <div class="section-title"><span class="bar"></span>省级决算核心指标矩阵（2024，万元）</div>
+    <div style="overflow-x:auto; background:var(--card); border:1px solid var(--border); border-radius:10px; margin-bottom:20px;">
+      <table id="provFinTable"><thead></thead><tbody></tbody></table>
+    </div>
+    <div class="section-title"><span class="bar"></span>省级关键指标对比（2024）</div>
+    <div style="overflow-x:auto; background:var(--card); border:1px solid var(--border); border-radius:10px; margin-bottom:20px;">
+      <table id="provM110Table"><thead></thead><tbody></tbody></table>
+    </div>
+    <div class="section-title"><span class="bar"></span>省级风险识别清单（四维）</div>
+    <div style="overflow-x:auto; background:var(--card); border:1px solid var(--border); border-radius:10px; margin-bottom:20px;">
+      <table id="provRiskTable"><thead><tr><th>省份</th><th>维度</th><th>风险点</th><th>数值</th><th>说明</th><th>灯</th></tr></thead><tbody></tbody></table>
+    </div>
+    <div class="section-title"><span class="bar"></span>省级交叉验证</div>
+    <div style="overflow-x:auto; background:var(--card); border:1px solid var(--border); border-radius:10px;">
+      <table id="provVerifyTable"><thead><tr><th>省份</th><th>验证项</th><th>结果</th><th>偏差</th><th>结论</th><th>灯</th></tr></thead><tbody></tbody></table>
+    </div>
+  </div>
+
+  <!-- ======== 一级：市级情况 ======== -->
+  <div class="panel" id="city">
+    <div class="tabs" style="margin-bottom:16px;">
+      <button class="tab-btn active" data-tab="overview">📊 总览</button>
+      <button class="tab-btn" data-tab="metrics">📐 110 指标</button>
+      <button class="tab-btn" data-tab="risks">🚦 风险识别</button>
+      <button class="tab-btn" data-tab="verify">🔗 外部验证</button>
+    </div>
+
+  <div class="panel active" id="overview" style="display:block;">
+    <div class="section-title"><span class="bar"></span>五城市财政风险异常率总览（市本级口径）</div>
+    <div class="overview-grid" id="cityCards"></div>
+    <div class="section-title" style="margin-top:32px;"><span class="bar"></span>异常率对比 & 风险构成</div>
+    <div class="chart-grid">
+      <div class="chart-box"><h3>异常率对比（市本级 vs 全市）</h3><div class="chart" id="chartAnomaly"></div></div>
+      <div class="chart-box"><h3>四维风险构成（市本级）</h3><div class="chart" id="chartRiskDim"></div></div>
+    </div>
+  </div>
+
+  <div class="panel" id="metrics">
+    <div class="section-title"><span class="bar"></span>110 指标体系实测矩阵（2024）</div>
+    <div class="filters">
+      <label>口径：</label>
+      <select id="metricScope"><option value="市本级">市本级</option><option value="全市">全市</option></select>
+      <label>类别：</label>
+      <select id="metricCat">
+        <option value="all">全部</option>
+        <option value="收入能力">收入能力</option>
+        <option value="人均指标">人均指标</option>
+        <option value="支出结构">支出结构</option>
+        <option value="收支平衡">收支平衡</option>
+        <option value="收入结构">收入结构</option>
+        <option value="转移支付">转移支付</option>
+        <option value="债务">债务</option>
+        <option value="土地财政">土地财政</option>
+        <option value="税收结构">税收结构</option>
+        <option value="宏观经济">宏观经济</option>
+      </select>
+    </div>
+    <div style="overflow-x:auto; background:var(--card); border:1px solid var(--border); border-radius:10px; max-height:600px; overflow-y:auto;">
+      <table id="metricTable"><thead></thead><tbody></tbody></table>
+    </div>
+    <p style="color:var(--muted);font-size:12px;margin-top:8px;">* 运营赤字率市本级口径不适用（本级支出含对下补助），取全市口径；— = 数据缺失（源表未披露）</p>
+  </div>
+
+  <div class="panel" id="risks">
+    <div class="section-title"><span class="bar"></span>四维风险识别清单</div>
+    <div class="filters">
+      <label>城市：</label><select id="riskCity"></select>
+      <label>口径：</label><select id="riskScope"><option value="市本级">市本级</option><option value="全市">全市</option></select>
+      <label>维度：</label>
+      <select id="riskDim">
+        <option value="all">全部</option>
+        <option value="指标层">指标层(国际警戒线)</option>
+        <option value="科目层">科目层(同比阈值)</option>
+        <option value="外部验证">外部验证</option>
+        <option value="横向对比">横向对比</option>
+      </select>
+    </div>
+    <div style="overflow-x:auto; background:var(--card); border:1px solid var(--border); border-radius:10px;">
+      <table id="riskTable"><thead><tr><th>维度</th><th>指标/验证</th><th>数值</th><th>判定</th><th>依据/结论</th></tr></thead><tbody></tbody></table>
+    </div>
+  </div>
+
+  <div class="panel" id="verify">
+    <div class="section-title"><span class="bar"></span>外部数据交叉验证综合矩阵（横轴=城市）</div>
+    <div style="overflow-x:auto; background:var(--card); border:1px solid var(--border); border-radius:10px;">
+      <table class="verify-table" id="verifyTable"><thead></thead><tbody></tbody></table>
+    </div>
+  </div>
+</div>
+<footer>
+  <div><b>数据来源</b>：各地市财政局决算 / 省财政厅决算 / 统计局统计公报 / 国家统计局 / 华经产业研究院</div>
+  <div><b>用途声明</b>：个人学术研究，非商业用途；不收集任何访客信息；仅授权链接访问</div>
+  <div><b>联系方式</b>：xiongpibaobao@163.com · 更新日期：2026-08-16</div>
+</footer>
+
+<script>
+
+// ========== 有效期门卫（GitHub Pages 版，前端 JS 检查）==========
+(function(){
+  try{
+    var exp = new URLSearchParams(location.search).get('exp');
+    if(!exp){ showExpired('链接无效：缺少授权参数。如需访问，请联系作者获取有效链接。'); return; }
+    var t = parseInt(exp, 10);
+    if(isNaN(t)){ showExpired('链接无效：授权参数格式错误。'); return; }
+    if(Date.now() > t * 1000){ showExpired('该链接已过期。如需继续访问，请联系作者获取新链接。'); }
+  }catch(e){}
+  function showExpired(msg){
+    document.documentElement.innerHTML =
+      '<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">' +
+      '<title>链接已失效</title><style>body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0f1419;color:#e8edf2;font-family:-apple-system,"PingFang SC",sans-serif;}' +
+      '.box{text-align:center;padding:40px;max-width:420px;}.icon{font-size:56px;margin-bottom:16px;}' +
+      'h1{font-size:20px;margin:0 0 12px;}p{font-size:14px;color:#8b98a7;line-height:1.7;margin:0;}' +
+      '</style></head><body><div class="box"><div class="icon">🔒</div><h1>访问受限</h1><p>' + msg + '</p></div></body></html>';
+  }
+})();
+
+const DATA = {"cities":["苏州","杭州","宁波","广州","深圳"],"anomaly":{"苏州":{"市本级":{"指标层":4,"科目层":11,"外部":3,"横向":3,"合计":21,"可算":26,"异常率":42},"全市":{"指标层":1,"科目层":0,"外部":4,"横向":3,"合计":8,"可算":19,"异常率":0}},"杭州":{"市本级":{"指标层":0,"科目层":6,"外部":3,"横向":1,"合计":10,"可算":26,"异常率":23},"全市":{"指标层":0,"科目层":7,"外部":3,"横向":1,"合计":11,"可算":26,"异常率":27}},"宁波":{"市本级":{"指标层":1,"科目层":5,"外部":1,"横向":0,"合计":7,"可算":22,"异常率":23},"全市":{"指标层":2,"科目层":4,"外部":2,"横向":0,"合计":8,"可算":23,"异常率":17}},"广州":{"市本级":{"指标层":1,"科目层":4,"外部":3,"横向":0,"合计":8,"可算":24,"异常率":17},"全市":{"指标层":3,"科目层":0,"外部":0,"横向":0,"合计":3,"可算":0,"异常率":null}},"深圳":{"市本级":{"指标层":0,"科目层":8,"外部":4,"横向":0,"合计":12,"可算":22,"异常率":36},"全市":{"指标层":1,"科目层":7,"外部":4,"横向":0,"合计":12,"可算":23,"异常率":30}}},"metrics":{"苏州":{"市本级":{"收入汲取能力-GDP法":{"label":"宏观税负(税收/GDP)","cat":"收入能力","value":0.0749872900063606,"unit":"%"},"收入汲取能力-实际收入法":{"label":"收入汲取-居民收入法","cat":"收入能力","value":0.1990640607069068,"unit":"%"},"收入汲取能力-混合法":{"label":"收入汲取-混合法","cat":"收入能力","value":0.10893779148485644,"unit":"%"},"人均收入":{"label":"人均一般公共预算收入","cat":"人均指标","value":573.2232232232233,"unit":"元/人"},"人均支出":{"label":"人均一般公共预算支出","cat":"人均指标","value":2669.2669592669595,"unit":"元/人"},"人均税收":{"label":"人均税收","cat":"人均指标","value":220.5867405867406,"unit":"元/人"},"人均GDP":{"label":"人均GDP","cat":"人均指标","value":205798.1057981058,"unit":"元/人"},"人均政府性基金收入":{"label":"人均政府性基金收入","cat":"人均指标","value":954.1726341726342,"unit":"元/人"},"人均公共服务支出":{"label":"人均公共服务支出","cat":"人均指标","value":193.005313005313,"unit":"元/人"},"人均政府间转移支付":{"label":"人均政府间转移支付","cat":"人均指标","value":1166.934626934627,"unit":"元/人"},"教育支出占比":{"label":"教育支出占比","cat":"支出结构","value":0.0858925101043479,"unit":"%"},"强制支出占比":{"label":"刚性支出占比(教社卫)","cat":"支出结构","value":0.28411831036783547,"unit":"%"},"运营赤字":{"label":"运营赤字率","cat":"收支平衡","value":3.6565924950802278,"unit":"%"},"经营赤字(NY-OSC)":{"label":"经营赤字(NY-OSC)","cat":"收支平衡","value":-0.7852506954266413,"unit":"%"},"赤字/总收入":{"label":"赤字/总收入","cat":"收支平衡","value":0.29435941921226016,"unit":"%"},"净自给率":{"label":"净财政自给率","cat":"收支平衡","value":0.16400273791351516,"unit":"%"},"净财政自给率":{"label":"净财政自给率(严格)","cat":"收支平衡","value":6.247755963496308,"unit":"%"},"收入/支出比率":{"label":"收入/支出比率","cat":"收支平衡","value":1.0,"unit":"%"},"利润率":{"label":"利润率(综合财力)","cat":"收支平衡","value":0.0,"unit":"%"},"经营盈余(赤字)":{"label":"经营盈余(综合财力)","cat":"收支平衡","value":0.0,"unit":"%"},"弹性收入/总收入":{"label":"非税收入占比","cat":"收入结构","value":0.6151817797150898,"unit":"%"},"自有收入占比":{"label":"自有收入占比","cat":"收入结构","value":0.08050101825902307,"unit":"%"},"收入混合-税收占比":{"label":"收入混合-税收占比","cat":"收入结构","value":0.38481822028491025,"unit":"%"},"收入混合-非税占比":{"label":"收入混合-非税占比","cat":"收入结构","value":0.6151817797150898,"unit":"%"},"政府间转移收入/总收入":{"label":"政府间转移收入占比","cat":"转移支付","value":0.16387930897448832,"unit":"%"},"经营性转移/总来源":{"label":"经营性转移/总来源","cat":"转移支付","value":0.10035179759781056,"unit":"%"},"净上级补助":{"label":"净上级补助","cat":"转移支付","value":-1150732.0,"unit":"万元"},"净调入调出":{"label":"净调入调出","cat":"转移支付","value":928018.0,"unit":"万元"},"净稳定调节基金变动":{"label":"净稳定调节基金变动","cat":"转移支付","value":385126.0,"unit":"万元"},"净结余变动":{"label":"净结余变动","cat":"平衡指标","value":0.0,"unit":"万元"},"净债务变动(一般债)":{"label":"净债务变动(一般债)","cat":"债务","value":315544.0,"unit":"万元"},"本级财力(一般)":{"label":"本级财力(一般)","cat":"财力","value":2259943.0,"unit":"万元"},"净可用财力(一般)":{"label":"净可用财力(一般)","cat":"财力","value":-406287.0,"unit":"万元"},"土地出让依赖度":{"label":"土地出让依赖度","cat":"土地财政","value":null,"unit":"%"},"房产税类收入占比":{"label":"房产税类收入占比","cat":"税收结构","value":0.022741870174115806,"unit":"%"},"偿债/收入":{"label":"偿债/收入(还本付息)","cat":"债务","value":0.01673192781199417,"unit":"%"},"偿债率(政府-wide)":{"label":"偿债率(政府-wide)","cat":"债务","value":0.0013469372263019987,"unit":"%"},"偿债支出趋势":{"label":"偿债支出趋势","cat":"债务","value":0.517333046766383,"unit":"%"},"利息支付/政府收入":{"label":"利息支付/政府收入","cat":"债务","value":null,"unit":"%"},"利息支付/GDP":{"label":"利息支付/GDP","cat":"债务","value":null,"unit":"%"},"利息-税率比":{"label":"利息-税率比","cat":"债务","value":null,"unit":"%"},"通货膨胀率(CPI)":{"label":"通货膨胀率(CPI)","cat":"宏观经济","value":0.2,"unit":"%"},"一般性转移支付":{"label":"一般性转移支付(绝对值)","cat":"转移支付","value":815014.0,"unit":"万元"},"专项转移支付":{"label":"专项转移支付(绝对值)","cat":"转移支付","value":535914.0,"unit":"万元"},"税收返还":{"label":"税收返还(绝对值)","cat":"转移支付","value":164570.0,"unit":"万元"}},"全市":{"收入汲取能力-GDP法":{"label":"宏观税负(税收/GDP)","cat":"收入能力","value":0.0749872900063606,"unit":"%"},"收入汲取能力-实际收入法":{"label":"收入汲取-居民收入法","cat":"收入能力","value":0.1990640607069068,"unit":"%"},"收入汲取能力-混合法":{"label":"收入汲取-混合法","cat":"收入能力","value":0.10893779148485644,"unit":"%"},"人均收入":{"label":"人均一般公共预算收入","cat":"人均指标","value":18935.083545083544,"unit":"元/人"},"人均支出":{"label":"人均一般公共预算支出","cat":"人均指标","value":20037.728497728498,"unit":"元/人"},"人均税收":{"label":"人均税收","cat":"人均指标","value":15432.242242242242,"unit":"元/人"},"人均GDP":{"label":"人均GDP","cat":"人均指标","value":205798.1057981058,"unit":"元/人"},"人均政府性基金收入":{"label":"人均政府性基金收入","cat":"人均指标","value":8070.22022022022,"unit":"元/人"},"人均公共服务支出":{"label":"人均公共服务支出","cat":"人均指标","value":1555.1359051359052,"unit":"元/人"},"人均政府间转移支付":{"label":"人均政府间转移支付","cat":"人均指标","value":0.0,"unit":"元/人"},"教育支出占比":{"label":"教育支出占比","cat":"支出结构","value":0.17895117234378607,"unit":"%"},"强制支出占比":{"label":"刚性支出占比(教社卫)","cat":"支出结构","value":0.35510266726377954,"unit":"%"},"运营赤字":{"label":"运营赤字率","cat":"收支平衡","value":0.05823290665814105,"unit":"%"},"经营赤字(NY-OSC)":{"label":"经营赤字(NY-OSC)","cat":"收支平衡","value":-0.05502844061241522,"unit":"%"},"赤字/总收入":{"label":"赤字/总收入","cat":"收支平衡","value":0.04447634872814237,"unit":"%"},"净自给率":{"label":"净财政自给率","cat":"收支平衡","value":0.8735391282725303,"unit":"%"},"净财政自给率":{"label":"净财政自给率(严格)","cat":"收支平衡","value":0.7433908651427578,"unit":"%"},"收入/支出比率":{"label":"收入/支出比率","cat":"收支平衡","value":1.0278043797484517,"unit":"%"},"利润率":{"label":"利润率(综合财力)","cat":"收支平衡","value":0.027052209833214276,"unit":"%"},"经营盈余(赤字)":{"label":"经营盈余(综合财力)","cat":"收支平衡","value":0.027052209833214276,"unit":"%"},"弹性收入/总收入":{"label":"非税收入占比","cat":"收入结构","value":0.1849921229289114,"unit":"%"},"自有收入占比":{"label":"自有收入占比","cat":"收入结构","value":0.7637665931608535,"unit":"%"},"收入混合-税收占比":{"label":"收入混合-税收占比","cat":"收入结构","value":0.8150078770710886,"unit":"%"},"收入混合-非税占比":{"label":"收入混合-非税占比","cat":"收入结构","value":0.1849921229289114,"unit":"%"},"政府间转移收入/总收入":{"label":"政府间转移收入占比","cat":"转移支付","value":0.0,"unit":"%"},"经营性转移/总来源":{"label":"经营性转移/总来源","cat":"转移支付","value":0.13498152001739291,"unit":"%"},"净上级补助":{"label":"净上级补助","cat":"转移支付","value":0,"unit":"万元"},"净调入调出":{"label":"净调入调出","cat":"转移支付","value":4346000,"unit":"万元"},"净稳定调节基金变动":{"label":"净稳定调节基金变动","cat":"转移支付","value":1660000,"unit":"万元"},"净结余变动":{"label":"净结余变动","cat":"平衡指标","value":871000,"unit":"万元"},"净债务变动(一般债)":{"label":"净债务变动(一般债)","cat":"债务","value":180000,"unit":"万元"},"本级财力(一般)":{"label":"本级财力(一般)","cat":"财力","value":24590993.0,"unit":"万元"},"净可用财力(一般)":{"label":"净可用财力(一般)","cat":"财力","value":24590993.0,"unit":"万元"},"土地出让依赖度":{"label":"土地出让依赖度","cat":"土地财政","value":null,"unit":"%"},"房产税类收入占比":{"label":"房产税类收入占比","cat":"税收结构","value":0.11910640198788006,"unit":"%"},"偿债/收入":{"label":"偿债/收入(还本付息)","cat":"债务","value":0.019072023647032067,"unit":"%"},"偿债率(政府-wide)":{"label":"偿债率(政府-wide)","cat":"债务","value":0.014971589095320181,"unit":"%"},"偿债支出趋势":{"label":"偿债支出趋势","cat":"债务","value":0.06750439073363163,"unit":"%"},"利息支付/政府收入":{"label":"利息支付/政府收入","cat":"债务","value":null,"unit":"%"},"利息支付/GDP":{"label":"利息支付/GDP","cat":"债务","value":null,"unit":"%"},"利息-税率比":{"label":"利息-税率比","cat":"债务","value":null,"unit":"%"},"通货膨胀率(CPI)":{"label":"通货膨胀率(CPI)","cat":"宏观经济","value":0.2,"unit":"%"},"一般性转移支付":{"label":"一般性转移支付(绝对值)","cat":"转移支付","value":null,"unit":"万元"},"专项转移支付":{"label":"专项转移支付(绝对值)","cat":"转移支付","value":null,"unit":"万元"},"税收返还":{"label":"税收返还(绝对值)","cat":"转移支付","value":null,"unit":"万元"}}},"杭州":{"市本级":{"收入汲取能力-GDP法":{"label":"宏观税负(税收/GDP)","cat":"收入能力","value":0.10445196706312901,"unit":"%"},"收入汲取能力-实际收入法":{"label":"收入汲取-居民收入法","cat":"收入能力","value":0.23558012965734731,"unit":"%"},"收入汲取能力-混合法":{"label":"收入汲取-混合法","cat":"收入能力","value":0.14473226604796047,"unit":"%"},"人均收入":{"label":"人均一般公共预算收入","cat":"人均指标","value":3117.668726235742,"unit":"元/人"},"人均支出":{"label":"人均一般公共预算支出","cat":"人均指标","value":3784.8930608365017,"unit":"元/人"},"人均税收":{"label":"人均税收","cat":"人均指标","value":2220.609949302915,"unit":"元/人"},"人均GDP":{"label":"人均GDP","cat":"人均指标","value":173162.23067173638,"unit":"元/人"},"人均政府性基金收入":{"label":"人均政府性基金收入","cat":"人均指标","value":5856.364068441065,"unit":"元/人"},"人均公共服务支出":{"label":"人均公共服务支出","cat":"人均指标","value":286.015525982256,"unit":"元/人"},"人均政府间转移支付":{"label":"人均政府间转移支付","cat":"人均指标","value":3726.6642902408107,"unit":"元/人"},"教育支出占比":{"label":"教育支出占比","cat":"支出结构","value":0.20540936269175974,"unit":"%"},"强制支出占比":{"label":"刚性支出占比(教社卫)","cat":"支出结构","value":0.4244548350173889,"unit":"%"},"运营赤字":{"label":"运营赤字率","cat":"收支平衡","value":0.21401386522754903,"unit":"%"},"经营赤字(NY-OSC)":{"label":"经营赤字(NY-OSC)","cat":"收支平衡","value":-0.17628617873110972,"unit":"%"},"赤字/总收入":{"label":"赤字/总收入","cat":"收支平衡","value":0.0417064290330824,"unit":"%"},"净自给率":{"label":"净财政自给率","cat":"收支平衡","value":0.6780053293017885,"unit":"%"},"净财政自给率":{"label":"净财政自给率(严格)","cat":"收支平衡","value":1.2820579156370806,"unit":"%"},"收入/支出比率":{"label":"收入/支出比率","cat":"收支平衡","value":1.0,"unit":"%"},"利润率":{"label":"利润率(综合财力)","cat":"收支平衡","value":0.0,"unit":"%"},"经营盈余(赤字)":{"label":"经营盈余(综合财力)","cat":"收支平衡","value":0.0,"unit":"%"},"弹性收入/总收入":{"label":"非税收入占比","cat":"收入结构","value":0.28773383438205474,"unit":"%"},"自有收入占比":{"label":"自有收入占比","cat":"收入结构","value":0.1948772290465306,"unit":"%"},"收入混合-税收占比":{"label":"收入混合-税收占比","cat":"收入结构","value":0.7122661656179453,"unit":"%"},"收入混合-非税占比":{"label":"收入混合-非税占比","cat":"收入结构","value":0.28773383438205474,"unit":"%"},"政府间转移收入/总收入":{"label":"政府间转移收入占比","cat":"转移支付","value":0.2329439315849462,"unit":"%"},"经营性转移/总来源":{"label":"经营性转移/总来源","cat":"转移支付","value":0.01821913155872322,"unit":"%"},"净上级补助":{"label":"净上级补助","cat":"转移支付","value":-3430369.0,"unit":"万元"},"净调入调出":{"label":"净调入调出","cat":"转移支付","value":367954.0,"unit":"万元"},"净稳定调节基金变动":{"label":"净稳定调节基金变动","cat":"转移支付","value":459147.0,"unit":"万元"},"净结余变动":{"label":"净结余变动","cat":"平衡指标","value":0.0,"unit":"万元"},"净债务变动(一般债)":{"label":"净债务变动(一般债)","cat":"债务","value":428600.0,"unit":"万元"},"本级财力(一般)":{"label":"本级财力(一般)","cat":"财力","value":8640286.0,"unit":"万元"},"净可用财力(一般)":{"label":"净可用财力(一般)","cat":"财力","value":505376.0,"unit":"万元"},"土地出让依赖度":{"label":"土地出让依赖度","cat":"土地财政","value":null,"unit":"%"},"房产税类收入占比":{"label":"房产税类收入占比","cat":"税收结构","value":0.021967339897506436,"unit":"%"},"偿债/收入":{"label":"偿债/收入(还本付息)","cat":"债务","value":0.04827548532742848,"unit":"%"},"偿债率(政府-wide)":{"label":"偿债率(政府-wide)","cat":"债务","value":0.009407792811485707,"unit":"%"},"偿债支出趋势":{"label":"偿债支出趋势","cat":"债务","value":0.1166607592717516,"unit":"%"},"利息支付/政府收入":{"label":"利息支付/政府收入","cat":"债务","value":null,"unit":"%"},"利息支付/GDP":{"label":"利息支付/GDP","cat":"债务","value":null,"unit":"%"},"利息-税率比":{"label":"利息-税率比","cat":"债务","value":null,"unit":"%"},"通货膨胀率(CPI)":{"label":"通货膨胀率(CPI)","cat":"宏观经济","value":0.1,"unit":"%"},"一般性转移支付":{"label":"一般性转移支付(绝对值)","cat":"转移支付","value":2283818.0,"unit":"万元"},"专项转移支付":{"label":"专项转移支付(绝对值)","cat":"转移支付","value":1218937.0,"unit":"万元"},"税收返还":{"label":"税收返还(绝对值)","cat":"转移支付","value":1201786.0,"unit":"万元"}},"全市":{"收入汲取能力-GDP法":{"label":"宏观税负(税收/GDP)","cat":"收入能力","value":0.10445196706312901,"unit":"%"},"收入汲取能力-实际收入法":{"label":"收入汲取-居民收入法","cat":"收入能力","value":0.23558012965734731,"unit":"%"},"收入汲取能力-混合法":{"label":"收入汲取-混合法","cat":"收入能力","value":0.14473226604796047,"unit":"%"},"人均收入":{"label":"人均一般公共预算收入","cat":"人均指标","value":20915.196451204054,"unit":"元/人"},"人均支出":{"label":"人均一般公共预算支出","cat":"人均指标","value":20992.35741444867,"unit":"元/人"},"人均税收":{"label":"人均税收","cat":"人均指标","value":18087.135614702154,"unit":"元/人"},"人均GDP":{"label":"人均GDP","cat":"人均指标","value":173162.23067173638,"unit":"元/人"},"人均政府性基金收入":{"label":"人均政府性基金收入","cat":"人均指标","value":12128.330956907479,"unit":"元/人"},"人均公共服务支出":{"label":"人均公共服务支出","cat":"人均指标","value":1600.9782953105198,"unit":"元/人"},"人均政府间转移支付":{"label":"人均政府间转移支付","cat":"人均指标","value":4473.113910012675,"unit":"元/人"},"教育支出占比":{"label":"教育支出占比","cat":"支出结构","value":0.21462987163534075,"unit":"%"},"强制支出占比":{"label":"刚性支出占比(教社卫)","cat":"支出结构","value":0.40321874639632865,"unit":"%"},"运营赤字":{"label":"运营赤字率","cat":"收支平衡","value":0.0036892296672724487,"unit":"%"},"经营赤字(NY-OSC)":{"label":"经营赤字(NY-OSC)","cat":"收支平衡","value":-0.003675669279120834,"unit":"%"},"赤字/总收入":{"label":"赤字/总收入","cat":"收支平衡","value":0.00257693837509337,"unit":"%"},"净自给率":{"label":"净财政自给率","cat":"收支平衡","value":0.9181006843492482,"unit":"%"},"净财政自给率":{"label":"净财政自给率(严格)","cat":"收支平衡","value":0.8595720220655557,"unit":"%"},"收入/支出比率":{"label":"收入/支出比率","cat":"收支平衡","value":1.0,"unit":"%"},"利润率":{"label":"利润率(综合财力)","cat":"收支平衡","value":0.0,"unit":"%"},"经营盈余(赤字)":{"label":"经营盈余(综合财力)","cat":"收支平衡","value":0.0,"unit":"%"},"弹性收入/总收入":{"label":"非税收入占比","cat":"收入结构","value":0.13521559996339858,"unit":"%"},"自有收入占比":{"label":"自有收入占比","cat":"收入结构","value":0.6985031043075649,"unit":"%"},"收入混合-税收占比":{"label":"收入混合-税收占比","cat":"收入结构","value":0.8647844000366014,"unit":"%"},"收入混合-非税占比":{"label":"收入混合-非税占比","cat":"收入结构","value":0.13521559996339858,"unit":"%"},"政府间转移收入/总收入":{"label":"政府间转移收入占比","cat":"转移支付","value":0.14938821920007977,"unit":"%"},"经营性转移/总来源":{"label":"经营性转移/总来源","cat":"转移支付","value":0.07254647135924584,"unit":"%"},"净上级补助":{"label":"净上级补助","cat":"转移支付","value":-2731737.0,"unit":"万元"},"净调入调出":{"label":"净调入调出","cat":"转移支付","value":2742249.0,"unit":"万元"},"净稳定调节基金变动":{"label":"净稳定调节基金变动","cat":"转移支付","value":842892.0,"unit":"万元"},"净结余变动":{"label":"净结余变动","cat":"平衡指标","value":0.0,"unit":"万元"},"净债务变动(一般债)":{"label":"净债务变动(一般债)","cat":"债务","value":234744.0,"unit":"万元"},"本级财力(一般)":{"label":"本级财力(一般)","cat":"财力","value":32050203.0,"unit":"万元"},"净可用财力(一般)":{"label":"净可用财力(一般)","cat":"财力","value":23671607.0,"unit":"万元"},"土地出让依赖度":{"label":"土地出让依赖度","cat":"土地财政","value":null,"unit":"%"},"房产税类收入占比":{"label":"房产税类收入占比","cat":"税收结构","value":0.10691050750661318,"unit":"%"},"偿债/收入":{"label":"偿债/收入(还本付息)","cat":"债务","value":0.024502805402224808,"unit":"%"},"偿债率(政府-wide)":{"label":"偿债率(政府-wide)","cat":"债务","value":0.0171152856376982,"unit":"%"},"偿债支出趋势":{"label":"偿债支出趋势","cat":"债务","value":0.03192368360613716,"unit":"%"},"利息支付/政府收入":{"label":"利息支付/政府收入","cat":"债务","value":null,"unit":"%"},"利息支付/GDP":{"label":"利息支付/GDP","cat":"债务","value":null,"unit":"%"},"利息-税率比":{"label":"利息-税率比","cat":"债务","value":null,"unit":"%"},"通货膨胀率(CPI)":{"label":"通货膨胀率(CPI)","cat":"宏观经济","value":0.1,"unit":"%"},"一般性转移支付":{"label":"一般性转移支付(绝对值)","cat":"转移支付","value":2981015.0,"unit":"万元"},"专项转移支付":{"label":"专项转移支付(绝对值)","cat":"转移支付","value":1384014.0,"unit":"万元"},"税收返还":{"label":"税收返还(绝对值)","cat":"转移支付","value":1281830.0,"unit":"万元"}}},"宁波":{"市本级":{"收入汲取能力-GDP法":{"label":"宏观税负(税收/GDP)","cat":"收入能力","value":0.07902742496294296,"unit":"%"},"收入汲取能力-实际收入法":{"label":"收入汲取-居民收入法","cat":"收入能力","value":0.1960908704174749,"unit":"%"},"收入汲取能力-混合法":{"label":"收入汲取-混合法","cat":"收入能力","value":0.11265376972772688,"unit":"%"},"人均收入":{"label":"人均一般公共预算收入","cat":"人均指标","value":1712.8587501278512,"unit":"元/人"},"人均支出":{"label":"人均一般公共预算支出","cat":"人均指标","value":4404.436943847806,"unit":"元/人"},"人均税收":{"label":"人均税收","cat":"人均指标","value":967.4041116907027,"unit":"元/人"},"人均GDP":{"label":"人均GDP","cat":"人均指标","value":185616.24220108418,"unit":"元/人"},"人均政府性基金收入":{"label":"人均政府性基金收入","cat":"人均指标","value":4705.8842180628,"unit":"元/人"},"人均公共服务支出":{"label":"人均公共服务支出","cat":"人均指标","value":313.47857215914905,"unit":"元/人"},"人均政府间转移支付":{"label":"人均政府间转移支付","cat":"人均指标","value":2077.4000204561726,"unit":"元/人"},"教育支出占比":{"label":"教育支出占比","cat":"支出结构","value":0.1484149200063722,"unit":"%"},"强制支出占比":{"label":"刚性支出占比(教社卫)","cat":"支出结构","value":0.31682650530001033,"unit":"%"},"运营赤字":{"label":"运营赤字率","cat":"收支平衡","value":1.5713953024550626,"unit":"%"},"经营赤字(NY-OSC)":{"label":"经营赤字(NY-OSC)","cat":"收支平衡","value":-0.611106079627181,"unit":"%"},"赤字/总收入":{"label":"赤字/总收入","cat":"收支平衡","value":0.2264111528715533,"unit":"%"},"净自给率":{"label":"净财政自给率","cat":"收支平衡","value":0.5606519722417589,"unit":"%"},"净财政自给率":{"label":"净财政自给率(严格)","cat":"收支平衡","value":9.821817594241285,"unit":"%"},"收入/支出比率":{"label":"收入/支出比率","cat":"收支平衡","value":1.0,"unit":"%"},"利润率":{"label":"利润率(综合财力)","cat":"收支平衡","value":0.0,"unit":"%"},"经营盈余(赤字)":{"label":"经营盈余(综合财力)","cat":"收支平衡","value":0.0,"unit":"%"},"弹性收入/总收入":{"label":"非税收入占比","cat":"收入结构","value":0.4352108067180124,"unit":"%"},"自有收入占比":{"label":"自有收入占比","cat":"收入结构","value":0.1440828749569385,"unit":"%"},"收入混合-税收占比":{"label":"收入混合-税收占比","cat":"收入结构","value":0.5647891932819876,"unit":"%"},"收入混合-非税占比":{"label":"收入混合-非税占比","cat":"收入结构","value":0.4352108067180124,"unit":"%"},"政府间转移收入/总收入":{"label":"政府间转移收入占比","cat":"转移支付","value":0.17474749004293935,"unit":"%"},"经营性转移/总来源":{"label":"经营性转移/总来源","cat":"转移支付","value":0.03978539621925942,"unit":"%"},"净上级补助":{"label":"净上级补助","cat":"转移支付","value":1566648.0,"unit":"万元"},"净调入调出":{"label":"净调入调出","cat":"转移支付","value":462422.0,"unit":"万元"},"净稳定调节基金变动":{"label":"净稳定调节基金变动","cat":"转移支付","value":861850.0,"unit":"万元"},"净结余变动":{"label":"净结余变动","cat":"平衡指标","value":0.0,"unit":"万元"},"净债务变动(一般债)":{"label":"净债务变动(一般债)","cat":"债务","value":951591.0,"unit":"万元"},"本级财力(一般)":{"label":"本级财力(一般)","cat":"财力","value":3705736.0,"unit":"万元"},"净可用财力(一般)":{"label":"净可用财力(一般)","cat":"财力","value":3241310.0,"unit":"万元"},"土地出让依赖度":{"label":"土地出让依赖度","cat":"土地财政","value":null,"unit":"%"},"房产税类收入占比":{"label":"房产税类收入占比","cat":"税收结构","value":0.061490900594292214,"unit":"%"},"偿债/收入":{"label":"偿债/收入(还本付息)","cat":"债务","value":0.05143903665336647,"unit":"%"},"偿债率(政府-wide)":{"label":"偿债率(政府-wide)","cat":"债务","value":0.007411484286032377,"unit":"%"},"偿债支出趋势":{"label":"偿债支出趋势","cat":"债务","value":0.5146411634108853,"unit":"%"},"利息支付/政府收入":{"label":"利息支付/政府收入","cat":"债务","value":null,"unit":"%"},"利息支付/GDP":{"label":"利息支付/GDP","cat":"债务","value":null,"unit":"%"},"利息-税率比":{"label":"利息-税率比","cat":"债务","value":null,"unit":"%"},"通货膨胀率(CPI)":{"label":"通货膨胀率(CPI)","cat":"宏观经济","value":0.6,"unit":"%"},"一般性转移支付":{"label":"一般性转移支付(绝对值)","cat":"转移支付","value":1167546.0,"unit":"万元"},"专项转移支付":{"label":"专项转移支付(绝对值)","cat":"转移支付","value":393143.0,"unit":"万元"},"税收返还":{"label":"税收返还(绝对值)","cat":"转移支付","value":470385.0,"unit":"万元"}},"全市":{"收入汲取能力-GDP法":{"label":"宏观税负(税收/GDP)","cat":"收入能力","value":0.07902742496294296,"unit":"%"},"收入汲取能力-实际收入法":{"label":"收入汲取-居民收入法","cat":"收入能力","value":0.1960908704174749,"unit":"%"},"收入汲取能力-混合法":{"label":"收入汲取-混合法","cat":"收入能力","value":0.11265376972772688,"unit":"%"},"人均收入":{"label":"人均一般公共预算收入","cat":"人均指标","value":18313.03467321264,"unit":"元/人"},"人均支出":{"label":"人均一般公共预算支出","cat":"人均指标","value":22812.366779175616,"unit":"元/人"},"人均税收":{"label":"人均税收","cat":"人均指标","value":14668.773652449627,"unit":"元/人"},"人均GDP":{"label":"人均GDP","cat":"人均指标","value":185616.24220108418,"unit":"元/人"},"人均政府性基金收入":{"label":"人均政府性基金收入","cat":"人均指标","value":7374.472742149944,"unit":"元/人"},"人均公共服务支出":{"label":"人均公共服务支出","cat":"人均指标","value":1871.5086427329447,"unit":"元/人"},"人均政府间转移支付":{"label":"人均政府间转移支付","cat":"人均指标","value":2077.4000204561726,"unit":"元/人"},"教育支出占比":{"label":"教育支出占比","cat":"支出结构","value":0.14809198727150097,"unit":"%"},"强制支出占比":{"label":"刚性支出占比(教社卫)","cat":"支出结构","value":0.3311165064410307,"unit":"%"},"运营赤字":{"label":"运营赤字率","cat":"收支平衡","value":0.24569014290921232,"unit":"%"},"经营赤字(NY-OSC)":{"label":"经营赤字(NY-OSC)","cat":"收支平衡","value":-0.19723214822541835,"unit":"%"},"赤字/总收入":{"label":"赤字/总收入","cat":"收支平衡","value":0.1555247491344135,"unit":"%"},"净自给率":{"label":"净财政自给率","cat":"收支平衡","value":0.6926575262848922,"unit":"%"},"净财政自给率":{"label":"净财政自给率(严格)","cat":"收支平衡","value":0.39394178708789657,"unit":"%"},"收入/支出比率":{"label":"收入/支出比率","cat":"收支平衡","value":1.0,"unit":"%"},"利润率":{"label":"利润率(综合财力)","cat":"收支平衡","value":0.0,"unit":"%"},"经营盈余(赤字)":{"label":"经营盈余(综合财力)","cat":"收支平衡","value":0.0,"unit":"%"},"弹性收入/总收入":{"label":"非税收入占比","cat":"收入结构","value":0.198998204600882,"unit":"%"},"自有收入占比":{"label":"自有收入占比","cat":"收入结构","value":0.6330117573820744,"unit":"%"},"收入混合-税收占比":{"label":"收入混合-税收占比","cat":"收入结构","value":0.801001795399118,"unit":"%"},"收入混合-非税占比":{"label":"收入混合-非税占比","cat":"收入结构","value":0.198998204600882,"unit":"%"},"政府间转移收入/总收入":{"label":"政府间转移收入占比","cat":"转移支付","value":0.07180779489584324,"unit":"%"},"经营性转移/总来源":{"label":"经营性转移/总来源","cat":"转移支付","value":0.07212110730020023,"unit":"%"},"净上级补助":{"label":"净上级补助","cat":"转移支付","value":1566648.0,"unit":"万元"},"净调入调出":{"label":"净调入调出","cat":"转移支付","value":2039936.0,"unit":"万元"},"净稳定调节基金变动":{"label":"净稳定调节基金变动","cat":"转移支付","value":3750955.0,"unit":"万元"},"净结余变动":{"label":"净结余变动","cat":"平衡指标","value":0.0,"unit":"万元"},"净债务变动(一般债)":{"label":"净债务变动(一般债)","cat":"债务","value":78825.0,"unit":"万元"},"本级财力(一般)":{"label":"本级财力(一般)","cat":"财力","value":19935728.0,"unit":"万元"},"净可用财力(一般)":{"label":"净可用财力(一般)","cat":"财力","value":19471302.0,"unit":"万元"},"土地出让依赖度":{"label":"土地出让依赖度","cat":"土地财政","value":null,"unit":"%"},"房产税类收入占比":{"label":"房产税类收入占比","cat":"税收结构","value":0.08249672632038411,"unit":"%"},"偿债/收入":{"label":"偿债/收入(还本付息)","cat":"债务","value":0.05355641052879324,"unit":"%"},"偿债率(政府-wide)":{"label":"偿债率(政府-wide)","cat":"债务","value":0.033901837547907245,"unit":"%"},"偿债支出趋势":{"label":"偿债支出趋势","cat":"债务","value":0.20949608967590214,"unit":"%"},"利息支付/政府收入":{"label":"利息支付/政府收入","cat":"债务","value":null,"unit":"%"},"利息支付/GDP":{"label":"利息支付/GDP","cat":"债务","value":null,"unit":"%"},"利息-税率比":{"label":"利息-税率比","cat":"债务","value":null,"unit":"%"},"通货膨胀率(CPI)":{"label":"通货膨胀率(CPI)","cat":"宏观经济","value":0.6,"unit":"%"},"一般性转移支付":{"label":"一般性转移支付(绝对值)","cat":"转移支付","value":1167546.0,"unit":"万元"},"专项转移支付":{"label":"专项转移支付(绝对值)","cat":"转移支付","value":393143.0,"unit":"万元"},"税收返还":{"label":"税收返还(绝对值)","cat":"转移支付","value":470385.0,"unit":"万元"}}},"广州":{"市本级":{"收入汲取能力-GDP法":{"label":"宏观税负(税收/GDP)","cat":"收入能力","value":0.06298880206235398,"unit":"%"},"收入汲取能力-实际收入法":{"label":"收入汲取-居民收入法","cat":"收入能力","value":0.12344576495983947,"unit":"%"},"收入汲取能力-混合法":{"label":"收入汲取-混合法","cat":"收入能力","value":0.08341479778871233,"unit":"%"},"人均收入":{"label":"人均一般公共预算收入","cat":"人均指标","value":4966.1971756771,"unit":"元/人"},"人均支出":{"label":"人均一般公共预算支出","cat":"人均指标","value":5265.250816735167,"unit":"元/人"},"人均税收":{"label":"人均税收","cat":"人均指标","value":3484.9999999999995,"unit":"元/人"},"人均GDP":{"label":"人均GDP","cat":"人均指标","value":163518.28432922333,"unit":"元/人"},"人均政府性基金收入":{"label":"人均政府性基金收入","cat":"人均指标","value":3765.599114764464,"unit":"元/人"},"人均公共服务支出":{"label":"人均公共服务支出","cat":"人均指标","value":395.81884287069244,"unit":"元/人"},"人均政府间转移支付":{"label":"人均政府间转移支付","cat":"人均指标","value":3345.990620718727,"unit":"元/人"},"教育支出占比":{"label":"教育支出占比","cat":"支出结构","value":0.1755692555326837,"unit":"%"},"强制支出占比":{"label":"刚性支出占比(教社卫)","cat":"支出结构","value":0.4037993701808966,"unit":"%"},"运营赤字":{"label":"运营赤字率","cat":"收支平衡","value":0.060217834789713875,"unit":"%"},"经营赤字(NY-OSC)":{"label":"经营赤字(NY-OSC)","cat":"收支平衡","value":-0.056797605938837675,"unit":"%"},"赤字/总收入":{"label":"赤字/总收入","cat":"收支平衡","value":0.025603394778521416,"unit":"%"},"净自给率":{"label":"净财政自给率","cat":"收支平衡","value":0.7695188417563861,"unit":"%"},"净财政自给率":{"label":"净财政自给率(严格)","cat":"收支平衡","value":-45.214825113819145,"unit":"%"},"收入/支出比率":{"label":"收入/支出比率","cat":"收支平衡","value":1.0,"unit":"%"},"利润率":{"label":"利润率(综合财力)","cat":"收支平衡","value":0.0,"unit":"%"},"经营盈余(赤字)":{"label":"经营盈余(综合财力)","cat":"收支平衡","value":0.0,"unit":"%"},"弹性收入/总收入":{"label":"非税收入占比","cat":"收入结构","value":0.2982558129048009,"unit":"%"},"自有收入占比":{"label":"自有收入占比","cat":"收入结构","value":0.42517959783726506,"unit":"%"},"收入混合-税收占比":{"label":"收入混合-税收占比","cat":"收入结构","value":0.701744187095199,"unit":"%"},"收入混合-非税占比":{"label":"收入混合-非税占比","cat":"收入结构","value":0.2982558129048009,"unit":"%"},"政府间转移收入/总收入":{"label":"政府间转移收入占比","cat":"转移支付","value":0.2864660616884353,"unit":"%"},"经营性转移/总来源":{"label":"经营性转移/总来源","cat":"转移支付","value":0.0635343082350194,"unit":"%"},"净上级补助":{"label":"净上级补助","cat":"转移支付","value":4870675.0,"unit":"万元"},"净调入调出":{"label":"净调入调出","cat":"转移支付","value":1408349.0,"unit":"万元"},"净稳定调节基金变动":{"label":"净稳定调节基金变动","cat":"转移支付","value":1300000.0,"unit":"万元"},"净结余变动":{"label":"净结余变动","cat":"平衡指标","value":0.0,"unit":"万元"},"净债务变动(一般债)":{"label":"净债务变动(一般债)","cat":"债务","value":137102.0,"unit":"万元"},"本级财力(一般)":{"label":"本级财力(一般)","cat":"财力","value":15774870.0,"unit":"万元"},"净可用财力(一般)":{"label":"净可用财力(一般)","cat":"财力","value":14295524.0,"unit":"万元"},"土地出让依赖度":{"label":"土地出让依赖度","cat":"土地财政","value":null,"unit":"%"},"房产税类收入占比":{"label":"房产税类收入占比","cat":"税收结构","value":0.22481834663802366,"unit":"%"},"偿债/收入":{"label":"偿债/收入(还本付息)","cat":"债务","value":0.005413349327930877,"unit":"%"},"偿债率(政府-wide)":{"label":"偿债率(政府-wide)","cat":"债务","value":0.0023016456902022796,"unit":"%"},"偿债支出趋势":{"label":"偿债支出趋势","cat":"债务","value":0.13793324434163348,"unit":"%"},"利息支付/政府收入":{"label":"利息支付/政府收入","cat":"债务","value":null,"unit":"%"},"利息支付/GDP":{"label":"利息支付/GDP","cat":"债务","value":null,"unit":"%"},"利息-税率比":{"label":"利息-税率比","cat":"债务","value":null,"unit":"%"},"通货膨胀率(CPI)":{"label":"通货膨胀率(CPI)","cat":"宏观经济","value":0.1,"unit":"%"},"一般性转移支付":{"label":"一般性转移支付(绝对值)","cat":"转移支付","value":2591446.0,"unit":"万元"},"专项转移支付":{"label":"专项转移支付(绝对值)","cat":"转移支付","value":791566.0,"unit":"万元"},"税收返还":{"label":"税收返还(绝对值)","cat":"转移支付","value":2967009.0,"unit":"万元"}},"全市":{"收入汲取能力-GDP法":{"label":"宏观税负(税收/GDP)","cat":"收入能力","value":0.06298880206235398,"unit":"%"},"收入汲取能力-实际收入法":{"label":"收入汲取-居民收入法","cat":"收入能力","value":0.12344576495983947,"unit":"%"},"收入汲取能力-混合法":{"label":"收入汲取-混合法","cat":"收入能力","value":0.08341479778871233,"unit":"%"},"人均收入":{"label":"人均一般公共预算收入","cat":"人均指标","value":10299.820845189168,"unit":"元/人"},"人均支出":{"label":"人均一般公共预算支出","cat":"人均指标","value":14661.713563073032,"unit":"元/人"},"人均税收":{"label":"人均税收","cat":"人均指标","value":null,"unit":"元/人"},"人均GDP":{"label":"人均GDP","cat":"人均指标","value":163518.28432922333,"unit":"元/人"},"人均政府性基金收入":{"label":"人均政府性基金收入","cat":"人均指标","value":6753.609442512383,"unit":"元/人"},"人均公共服务支出":{"label":"人均公共服务支出","cat":"人均指标","value":null,"unit":"元/人"},"人均政府间转移支付":{"label":"人均政府间转移支付","cat":"人均指标","value":0.0,"unit":"元/人"},"教育支出占比":{"label":"教育支出占比","cat":"支出结构","value":null,"unit":"%"},"强制支出占比":{"label":"刚性支出占比(教社卫)","cat":"支出结构","value":0.0,"unit":"%"},"运营赤字":{"label":"运营赤字率","cat":"收支平衡","value":0.4234920959738067,"unit":"%"},"经营赤字(NY-OSC)":{"label":"经营赤字(NY-OSC)","cat":"收支平衡","value":-0.29750224618149146,"unit":"%"},"赤字/总收入":{"label":"赤字/总收入","cat":"收支平衡","value":0.24912724208498857,"unit":"%"},"净自给率":{"label":"净财政自给率","cat":"收支平衡","value":1.019482711011567,"unit":"%"},"净财政自给率":{"label":"净财政自给率(严格)","cat":"收支平衡","value":0.7024977538185085,"unit":"%"},"收入/支出比率":{"label":"收入/支出比率","cat":"收支平衡","value":1.019482711011567,"unit":"%"},"利润率":{"label":"利润率(综合财力)","cat":"收支平衡","value":0.01911038882869869,"unit":"%"},"经营盈余(赤字)":{"label":"经营盈余(综合财力)","cat":"收支平衡","value":0.01911038882869869,"unit":"%"},"弹性收入/总收入":{"label":"非税收入占比","cat":"收入结构","value":null,"unit":"%"},"自有收入占比":{"label":"自有收入占比","cat":"收入结构","value":0.5882689298182255,"unit":"%"},"收入混合-税收占比":{"label":"收入混合-税收占比","cat":"收入结构","value":null,"unit":"%"},"收入混合-非税占比":{"label":"收入混合-非税占比","cat":"收入结构","value":null,"unit":"%"},"政府间转移收入/总收入":{"label":"政府间转移收入占比","cat":"转移支付","value":0.0,"unit":"%"},"经营性转移/总来源":{"label":"经营性转移/总来源","cat":"转移支付","value":null,"unit":"%"},"净上级补助":{"label":"净上级补助","cat":"转移支付","value":0,"unit":"万元"},"净调入调出":{"label":"净调入调出","cat":"转移支付","value":0,"unit":"万元"},"净稳定调节基金变动":{"label":"净稳定调节基金变动","cat":"转移支付","value":0,"unit":"万元"},"净结余变动":{"label":"净结余变动","cat":"平衡指标","value":635000.0,"unit":"万元"},"净债务变动(一般债)":{"label":"净债务变动(一般债)","cat":"债务","value":0,"unit":"万元"},"本级财力(一般)":{"label":"本级财力(一般)","cat":"财力","value":19547000.0,"unit":"万元"},"净可用财力(一般)":{"label":"净可用财力(一般)","cat":"财力","value":19547000.0,"unit":"万元"},"土地出让依赖度":{"label":"土地出让依赖度","cat":"土地财政","value":null,"unit":"%"},"房产税类收入占比":{"label":"房产税类收入占比","cat":"税收结构","value":null,"unit":"%"},"偿债/收入":{"label":"偿债/收入(还本付息)","cat":"债务","value":0.0,"unit":"%"},"偿债率(政府-wide)":{"label":"偿债率(政府-wide)","cat":"债务","value":0.0,"unit":"%"},"偿债支出趋势":{"label":"偿债支出趋势","cat":"债务","value":null,"unit":"%"},"利息支付/政府收入":{"label":"利息支付/政府收入","cat":"债务","value":null,"unit":"%"},"利息支付/GDP":{"label":"利息支付/GDP","cat":"债务","value":null,"unit":"%"},"利息-税率比":{"label":"利息-税率比","cat":"债务","value":null,"unit":"%"},"通货膨胀率(CPI)":{"label":"通货膨胀率(CPI)","cat":"宏观经济","value":0.1,"unit":"%"},"一般性转移支付":{"label":"一般性转移支付(绝对值)","cat":"转移支付","value":null,"unit":"万元"},"专项转移支付":{"label":"专项转移支付(绝对值)","cat":"转移支付","value":null,"unit":"万元"},"税收返还":{"label":"税收返还(绝对值)","cat":"转移支付","value":null,"unit":"万元"}}},"深圳":{"市本级":{"收入汲取能力-GDP法":{"label":"宏观税负(税收/GDP)","cat":"收入能力","value":0.08873803967026675,"unit":"%"},"收入汲取能力-实际收入法":{"label":"收入汲取-居民收入法","cat":"收入能力","value":0.2237776051057718,"unit":"%"},"收入汲取能力-混合法":{"label":"收入汲取-混合法","cat":"收入能力","value":0.12708218824324152,"unit":"%"},"人均收入":{"label":"人均一般公共预算收入","cat":"人均指标","value":11653.03816114956,"unit":"元/人"},"人均支出":{"label":"人均一般公共预算支出","cat":"人均指标","value":11849.90021957253,"unit":"元/人"},"人均税收":{"label":"人均税收","cat":"人均指标","value":8874.553489535563,"unit":"元/人"},"人均GDP":{"label":"人均GDP","cat":"人均指标","value":204574.16826482114,"unit":"元/人"},"人均政府性基金收入":{"label":"人均政府性基金收入","cat":"人均指标","value":2395.228327635565,"unit":"元/人"},"人均公共服务支出":{"label":"人均公共服务支出","cat":"人均指标","value":718.2072875844242,"unit":"元/人"},"人均政府间转移支付":{"label":"人均政府间转移支付","cat":"人均指标","value":0.0,"unit":"元/人"},"教育支出占比":{"label":"教育支出占比","cat":"支出结构","value":0.14568757001916466,"unit":"%"},"强制支出占比":{"label":"刚性支出占比(教社卫)","cat":"支出结构","value":0.28818910092976724,"unit":"%"},"运营赤字":{"label":"运营赤字率","cat":"收支平衡","value":0.016893625138832354,"unit":"%"},"经营赤字(NY-OSC)":{"label":"经营赤字(NY-OSC)","cat":"收支平衡","value":-0.016612971820455593,"unit":"%"},"赤字/总收入":{"label":"赤字/总收入","cat":"收支平衡","value":0.010227405374443839,"unit":"%"},"净自给率":{"label":"净财政自给率","cat":"收支平衡","value":0.9724165947809305,"unit":"%"},"净财政自给率":{"label":"净财政自给率(严格)","cat":"收支平衡","value":0.9183257774672705,"unit":"%"},"收入/支出比率":{"label":"收入/支出比率","cat":"收支平衡","value":1.0,"unit":"%"},"利润率":{"label":"利润率(综合财力)","cat":"收支平衡","value":0.0,"unit":"%"},"经营盈余(赤字)":{"label":"经营盈余(综合财力)","cat":"收支平衡","value":0.0,"unit":"%"},"弹性收入/总收入":{"label":"非税收入占比","cat":"收入结构","value":0.23843435790653092,"unit":"%"},"自有收入占比":{"label":"自有收入占比","cat":"收入结构","value":0.6054002791227278,"unit":"%"},"收入混合-税收占比":{"label":"收入混合-税收占比","cat":"收入结构","value":0.7615656420934691,"unit":"%"},"收入混合-非税占比":{"label":"收入混合-非税占比","cat":"收入结构","value":0.23843435790653092,"unit":"%"},"政府间转移收入/总收入":{"label":"政府间转移收入占比","cat":"转移支付","value":0.0,"unit":"%"},"经营性转移/总来源":{"label":"经营性转移/总来源","cat":"转移支付","value":0.010985107543920417,"unit":"%"},"净上级补助":{"label":"净上级补助","cat":"转移支付","value":-902206,"unit":"万元"},"净调入调出":{"label":"净调入调出","cat":"转移支付","value":380382,"unit":"万元"},"净稳定调节基金变动":{"label":"净稳定调节基金变动","cat":"转移支付","value":4911101,"unit":"万元"},"净结余变动":{"label":"净结余变动","cat":"平衡指标","value":0,"unit":"万元"},"净债务变动(一般债)":{"label":"净债务变动(一般债)","cat":"债务","value":323117,"unit":"万元"},"本级财力(一般)":{"label":"本级财力(一般)","cat":"财力","value":20963233,"unit":"万元"},"净可用财力(一般)":{"label":"净可用财力(一般)","cat":"财力","value":20061027,"unit":"万元"},"土地出让依赖度":{"label":"土地出让依赖度","cat":"土地财政","value":null,"unit":"%"},"房产税类收入占比":{"label":"房产税类收入占比","cat":"税收结构","value":0.1015910049547513,"unit":"%"},"偿债/收入":{"label":"偿债/收入(还本付息)","cat":"债务","value":0.02328758164353752,"unit":"%"},"偿债率(政府-wide)":{"label":"偿债率(政府-wide)","cat":"债务","value":0.014098308427090927,"unit":"%"},"偿债支出趋势":{"label":"偿债支出趋势","cat":"债务","value":0.23427211823672428,"unit":"%"},"利息支付/政府收入":{"label":"利息支付/政府收入","cat":"债务","value":null,"unit":"%"},"利息支付/GDP":{"label":"利息支付/GDP","cat":"债务","value":null,"unit":"%"},"利息-税率比":{"label":"利息-税率比","cat":"债务","value":null,"unit":"%"},"通货膨胀率(CPI)":{"label":"通货膨胀率(CPI)","cat":"宏观经济","value":0.1,"unit":"%"},"一般性转移支付":{"label":"一般性转移支付(绝对值)","cat":"转移支付","value":null,"unit":"万元"},"专项转移支付":{"label":"专项转移支付(绝对值)","cat":"转移支付","value":null,"unit":"万元"},"税收返还":{"label":"税收返还(绝对值)","cat":"转移支付","value":null,"unit":"万元"}},"全市":{"收入汲取能力-GDP法":{"label":"宏观税负(税收/GDP)","cat":"收入能力","value":0.08873803967026675,"unit":"%"},"收入汲取能力-实际收入法":{"label":"收入汲取-居民收入法","cat":"收入能力","value":0.2237776051057718,"unit":"%"},"收入汲取能力-混合法":{"label":"收入汲取-混合法","cat":"收入能力","value":0.12708218824324152,"unit":"%"},"人均收入":{"label":"人均一般公共预算收入","cat":"人均指标","value":21761.530893020932,"unit":"元/人"},"人均支出":{"label":"人均一般公共预算支出","cat":"人均指标","value":26131.13705216932,"unit":"元/人"},"人均税收":{"label":"人均税收","cat":"人均指标","value":18153.510658995525,"unit":"元/人"},"人均GDP":{"label":"人均GDP","cat":"人均指标","value":204574.16826482114,"unit":"元/人"},"人均政府性基金收入":{"label":"人均政府性基金收入","cat":"人均指标","value":2640.2112343311373,"unit":"元/人"},"人均公共服务支出":{"label":"人均公共服务支出","cat":"人均指标","value":1959.5302815531281,"unit":"元/人"},"人均政府间转移支付":{"label":"人均政府间转移支付","cat":"人均指标","value":0.0,"unit":"元/人"},"教育支出占比":{"label":"教育支出占比","cat":"支出结构","value":0.2174739312111958,"unit":"%"},"强制支出占比":{"label":"刚性支出占比(教社卫)","cat":"支出结构","value":0.3723316084506989,"unit":"%"},"运营赤字":{"label":"运营赤字率","cat":"收支平衡","value":0.200794979940945,"unit":"%"},"经营赤字(NY-OSC)":{"label":"经营赤字(NY-OSC)","cat":"收支平衡","value":-0.1672183705754833,"unit":"%"},"赤字/总收入":{"label":"赤字/总收入","cat":"收支平衡","value":0.14125690582963993,"unit":"%"},"净自给率":{"label":"净财政自给率","cat":"收支平衡","value":0.8056623348594382,"unit":"%"},"净财政自给率":{"label":"净财政自给率(严格)","cat":"收支平衡","value":0.5986835365062264,"unit":"%"},"收入/支出比率":{"label":"收入/支出比率","cat":"收支平衡","value":1.0,"unit":"%"},"利润率":{"label":"利润率(综合财力)","cat":"收支平衡","value":0.0,"unit":"%"},"经营盈余(赤字)":{"label":"经营盈余(综合财力)","cat":"收支平衡","value":0.0,"unit":"%"},"弹性收入/总收入":{"label":"非税收入占比","cat":"收入结构","value":0.16579808891949419,"unit":"%"},"自有收入占比":{"label":"自有收入占比","cat":"收入结构","value":0.7034882339746962,"unit":"%"},"收入混合-税收占比":{"label":"收入混合-税收占比","cat":"收入结构","value":0.8342019110805058,"unit":"%"},"收入混合-非税占比":{"label":"收入混合-非税占比","cat":"收入结构","value":0.16579808891949419,"unit":"%"},"政府间转移收入/总收入":{"label":"政府间转移收入占比","cat":"转移支付","value":0.0,"unit":"%"},"经营性转移/总来源":{"label":"经营性转移/总来源","cat":"转移支付","value":0.026105751276310925,"unit":"%"},"净上级补助":{"label":"净上级补助","cat":"转移支付","value":-902206,"unit":"万元"},"净调入调出":{"label":"净调入调出","cat":"转移支付","value":1436639,"unit":"万元"},"净稳定调节基金变动":{"label":"净稳定调节基金变动","cat":"转移支付","value":8453824,"unit":"万元"},"净结余变动":{"label":"净结余变动","cat":"平衡指标","value":0,"unit":"万元"},"净债务变动(一般债)":{"label":"净债务变动(一般债)","cat":"债务","value":811300,"unit":"万元"},"本级财力(一般)":{"label":"本级财力(一般)","cat":"财力","value":39147906,"unit":"万元"},"净可用财力(一般)":{"label":"净可用财力(一般)","cat":"财力","value":38229599,"unit":"万元"},"土地出让依赖度":{"label":"土地出让依赖度","cat":"土地财政","value":null,"unit":"%"},"房产税类收入占比":{"label":"房产税类收入占比","cat":"税收结构","value":0.09468541418878462,"unit":"%"},"偿债/收入":{"label":"偿债/收入(还本付息)","cat":"债务","value":0.0,"unit":"%"},"偿债率(政府-wide)":{"label":"偿债率(政府-wide)","cat":"债务","value":0.0,"unit":"%"},"偿债支出趋势":{"label":"偿债支出趋势","cat":"债务","value":0.2159457519899021,"unit":"%"},"利息支付/政府收入":{"label":"利息支付/政府收入","cat":"债务","value":null,"unit":"%"},"利息支付/GDP":{"label":"利息支付/GDP","cat":"债务","value":null,"unit":"%"},"利息-税率比":{"label":"利息-税率比","cat":"债务","value":null,"unit":"%"},"通货膨胀率(CPI)":{"label":"通货膨胀率(CPI)","cat":"宏观经济","value":0.1,"unit":"%"},"一般性转移支付":{"label":"一般性转移支付(绝对值)","cat":"转移支付","value":null,"unit":"万元"},"专项转移支付":{"label":"专项转移支付(绝对值)","cat":"转移支付","value":null,"unit":"万元"},"税收返还":{"label":"税收返还(绝对值)","cat":"转移支付","value":null,"unit":"万元"}}}},"risks":{"苏州":{"市本级":{"指标层":[{"维度":"指标层","指标":"宏观税负(税收/GDP)","值":"7.5%","灯":"🟡","警戒":"IMF: 发展中国家15-25%（税收/GDP）；8%以下偏低","说明":"越低越可疑：GDP虚增或税收流失"},{"维度":"指标层","指标":"净财政自给率","值":"16.4%","灯":"🔴","警戒":"NY-OSC: >70%较好；<30%依赖转移","说明":"越低越依赖上级"},{"维度":"指标层","指标":"非税占比","值":"61.5%","灯":"🔴","警戒":"ICMA: 非税>50%收入结构脆弱","说明":"越高越依赖一次性收入"},{"维度":"指标层","指标":"教育支出占比","值":"8.6%","灯":"🟡","警戒":"中国《教育法》: ≥4%GDP或15%支出","说明":"低于10%教育投入不足"}],"科目层":[{"维度":"科目层","指标":"非税收入","2023亿":31.7,"2024亿":45.8,"同比%":44.5,"灯":"🔴","阈值":"+50%/-30%"},{"维度":"科目层","指标":"增值税","2023亿":-0.1,"2024亿":1.4,"同比%":1838.5,"灯":"🔴","阈值":"+30%/-20%"},{"维度":"科目层","指标":"个人所得税","2023亿":0.0,"2024亿":0.0,"同比%":-56.7,"灯":"🔴","阈值":"+30%/-20%"},{"维度":"科目层","指标":"印花税","2023亿":0.4,"2024亿":0.2,"同比%":-38.9,"灯":"🔴","阈值":"+30%/-20%"},{"维度":"科目层","指标":"契税","2023亿":10.1,"2024亿":6.0,"同比%":-40.9,"灯":"🔴","阈值":"+30%/-20%"},{"维度":"科目层","指标":"调入资金","2023亿":54.8,"2024亿":92.8,"同比%":69.2,"灯":"🔴","阈值":"+50%/-30%"},{"维度":"科目层","指标":"一般性转移支付收入","2023亿":134.1,"2024亿":81.5,"同比%":-39.2,"灯":"🔴","阈值":"+30%/-15%"},{"维度":"科目层","指标":"债务转贷收入","2023亿":62.4,"2024亿":32.8,"同比%":-47.4,"灯":"🔴","阈值":"+50%/-25%"},{"维度":"科目层","指标":"债务还本支出","2023亿":19.4,"2024亿":1.2,"同比%":-93.6,"灯":"🔴","阈值":"+50%/-25%"},{"维度":"科目层","指标":"基金收入","2023亿":245.4,"2024亿":123.9,"同比%":-49.5,"灯":"🔴","阈值":"+30%/-30%"},{"维度":"科目层","指标":"国资支出","2023亿":10.1,"2024亿":7.0,"同比%":-30.4,"灯":"🔴","阈值":"+50%/-30%"}],"外部验证":[{"维度":"外部验证","验证":"契税↔房地产交易","值":"契税-40.9% vs 销售面积1617.3万㎡(2024)","灯":"🔴","结论":"契税大幅变动需与销售面积/价格核对"},{"维度":"外部验证","验证":"房产税同比","值":"+10.9%","灯":"🟡","结论":"房产税增长需与房产原值/价格核对（剪刀差检测）"},{"维度":"外部验证","验证":"企业所得税↔工业","值":"企税-15.8% vs 规上工业+9.2%","灯":"🟡","结论":"企税变动需与工业利润核对"}],"横向对比":[{"维度":"横向对比","指标":"净自给率","值":"16.4%","均值":"62.9%","Z":-1.73,"灯":"🟡"},{"维度":"横向对比","指标":"运营赤字","值":"365.7%","均值":"110.4%","Z":1.82,"灯":"🟡"},{"维度":"横向对比","指标":"教育支出占比","值":"8.6%","均值":"15.2%","Z":-1.68,"灯":"🟡"}]},"全市":{"指标层":[{"维度":"指标层","指标":"宏观税负(税收/GDP)","值":"7.5%","灯":"🟡","警戒":"IMF: 发展中国家15-25%（税收/GDP）；8%以下偏低","说明":"越低越可疑：GDP虚增或税收流失"}],"科目层":[],"外部验证":[{"维度":"外部验证","验证":"契税↔房地产交易","值":"契税-20.4% vs 销售面积1617.3万㎡(2024)","灯":"🟡","结论":"契税大幅变动需与销售面积/价格核对"},{"维度":"外部验证","验证":"房产税同比","值":"+21.3%","灯":"🟡","结论":"房产税增长需与房产原值/价格核对（剪刀差检测）"},{"维度":"外部验证","验证":"土地增值税同比","值":"+16.0%","灯":"🟡","结论":"需与土地出让数据核对（滞后期）"},{"维度":"外部验证","验证":"企业所得税↔工业","值":"企税-4.2% vs 规上工业+9.2%","灯":"🟢","结论":"企税变动需与工业利润核对"}],"横向对比":[{"维度":"横向对比","指标":"净自给率","值":"16.4%","均值":"62.9%","Z":-1.73,"灯":"🟡"},{"维度":"横向对比","指标":"运营赤字","值":"365.7%","均值":"110.4%","Z":1.82,"灯":"🟡"},{"维度":"横向对比","指标":"教育支出占比","值":"8.6%","均值":"15.2%","Z":-1.68,"灯":"🟡"}]}},"杭州":{"市本级":{"指标层":[],"科目层":[{"维度":"科目层","指标":"非税收入","2023亿":67.1,"2024亿":113.2,"同比%":68.9,"灯":"🔴","阈值":"+50%/-30%"},{"维度":"科目层","指标":"调入资金","2023亿":368.9,"2024亿":36.8,"同比%":-90.0,"灯":"🔴","阈值":"+50%/-30%"},{"维度":"科目层","指标":"专项转移支付收入","2023亿":55.9,"2024亿":121.9,"同比%":118.2,"灯":"🔴","阈值":"+30%/-15%"},{"维度":"科目层","指标":"债务转贷收入","2023亿":169.2,"2024亿":61.9,"同比%":-63.4,"灯":"🔴","阈值":"+50%/-25%"},{"维度":"科目层","指标":"债务还本支出","2023亿":63.9,"2024亿":19.0,"同比%":-70.3,"灯":"🔴","阈值":"+50%/-25%"},{"维度":"科目层","指标":"农林水支出","2023亿":11.3,"2024亿":17.5,"同比%":54.7,"灯":"🔴","阈值":"+30%/-25%"}],"外部验证":[{"维度":"外部验证","验证":"契税↔房地产交易","值":"契税-6.4% vs 销售面积1038.0万㎡(2024)","灯":"🟡","结论":"契税大幅变动需与销售面积/价格核对"},{"维度":"外部验证","验证":"房产税同比","值":"-1.0%","灯":"🟢","结论":"房产税增长需与房产原值/价格核对（剪刀差检测）"},{"维度":"外部验证","验证":"土地增值税同比","值":"-24.0%","灯":"🟡","结论":"需与土地出让数据核对（滞后期）"}],"横向对比":[{"维度":"横向对比","指标":"收入汲取能力-GDP法","值":"10.4%","均值":"8.2%","Z":1.61,"灯":"🟡"}]},"全市":{"指标层":[],"科目层":[{"维度":"科目层","指标":"非税收入","2023亿":268.7,"2024亿":357.0,"同比%":32.9,"灯":"🔴","阈值":"+50%/-30%"},{"维度":"科目层","指标":"调入资金","2023亿":689.3,"2024亿":274.2,"同比%":-60.2,"灯":"🔴","阈值":"+50%/-30%"},{"维度":"科目层","指标":"专项转移支付收入","2023亿":71.3,"2024亿":138.4,"同比%":94.0,"灯":"🔴","阈值":"+30%/-15%"},{"维度":"科目层","指标":"债务转贷收入","2023亿":194.2,"2024亿":88.2,"同比%":-54.6,"灯":"🔴","阈值":"+50%/-25%"},{"维度":"科目层","指标":"债务还本支出","2023亿":204.4,"2024亿":64.7,"同比%":-68.3,"灯":"🔴","阈值":"+50%/-25%"},{"维度":"科目层","指标":"基金收入","2023亿":2233.4,"2024亿":1531.1,"同比%":-31.4,"灯":"🔴","阈值":"+30%/-30%"},{"维度":"科目层","指标":"国资支出","2023亿":21.8,"2024亿":37.3,"同比%":71.3,"灯":"🔴","阈值":"+50%/-30%"}],"外部验证":[{"维度":"外部验证","验证":"契税↔房地产交易","值":"契税-14.8% vs 销售面积1038.0万㎡(2024)","灯":"🟡","结论":"契税大幅变动需与销售面积/价格核对"},{"维度":"外部验证","验证":"房产税同比","值":"+16.2%","灯":"🟡","结论":"房产税增长需与房产原值/价格核对（剪刀差检测）"},{"维度":"外部验证","验证":"土地增值税同比","值":"-20.2%","灯":"🟡","结论":"需与土地出让数据核对（滞后期）"}],"横向对比":[{"维度":"横向对比","指标":"收入汲取能力-GDP法","值":"10.4%","均值":"8.2%","Z":1.61,"灯":"🟡"}]}},"宁波":{"市本级":{"指标层":[{"维度":"指标层","指标":"宏观税负(税收/GDP)","值":"7.9%","灯":"🟡","警戒":"IMF: 发展中国家15-25%（税收/GDP）；8%以下偏低","说明":"越低越可疑：GDP虚增或税收流失"}],"科目层":[{"维度":"科目层","指标":"一般性转移支付收入","2023亿":193.6,"2024亿":116.8,"同比%":-39.7,"灯":"🔴","阈值":"+30%/-15%"},{"维度":"科目层","指标":"专项转移支付收入","2023亿":17.0,"2024亿":39.3,"同比%":131.0,"灯":"🔴","阈值":"+30%/-15%"},{"维度":"科目层","指标":"债务转贷收入","2023亿":166.7,"2024亿":103.8,"同比%":-37.7,"灯":"🔴","阈值":"+50%/-25%"},{"维度":"科目层","指标":"债务还本支出","2023亿":45.8,"2024亿":8.6,"同比%":-81.2,"灯":"🔴","阈值":"+50%/-25%"},{"维度":"科目层","指标":"农林水支出","2023亿":16.1,"2024亿":8.7,"同比%":-45.7,"灯":"🔴","阈值":"+30%/-25%"}],"外部验证":[{"维度":"外部验证","验证":"企业所得税↔工业","值":"企税+24.0% vs 规上工业+7.7%","灯":"🟡","结论":"企税变动需与工业利润核对"}],"横向对比":[]},"全市":{"指标层":[{"维度":"指标层","指标":"宏观税负(税收/GDP)","值":"7.9%","灯":"🟡","警戒":"IMF: 发展中国家15-25%（税收/GDP）；8%以下偏低","说明":"越低越可疑：GDP虚增或税收流失"},{"维度":"指标层","指标":"运营赤字率","值":"24.6%","灯":"🔴","警戒":"NY-OSC: <10%","说明":"越高赤字越重"}],"科目层":[{"维度":"科目层","指标":"一般性转移支付收入","2023亿":193.6,"2024亿":116.8,"同比%":-39.7,"灯":"🔴","阈值":"+30%/-15%"},{"维度":"科目层","指标":"专项转移支付收入","2023亿":17.0,"2024亿":39.3,"同比%":131.0,"灯":"🔴","阈值":"+30%/-15%"},{"维度":"科目层","指标":"债务转贷收入","2023亿":166.7,"2024亿":103.8,"同比%":-37.7,"灯":"🔴","阈值":"+50%/-25%"},{"维度":"科目层","指标":"债务还本支出","2023亿":157.7,"2024亿":95.9,"同比%":-39.2,"灯":"🔴","阈值":"+50%/-25%"}],"外部验证":[{"维度":"外部验证","验证":"契税↔房地产交易","值":"契税-9.7% vs 销售面积796.3万㎡(2024)","灯":"🟡","结论":"契税大幅变动需与销售面积/价格核对"},{"维度":"外部验证","验证":"企业所得税↔工业","值":"企税+0.6% vs 规上工业+7.7%","灯":"🟢","结论":"企税变动需与工业利润核对"}],"横向对比":[]}},"广州":{"市本级":{"指标层":[{"维度":"指标层","指标":"宏观税负(税收/GDP)","值":"6.3%","灯":"🔴","警戒":"IMF: 发展中国家15-25%（税收/GDP）；8%以下偏低","说明":"越低越可疑：GDP虚增或税收流失"}],"科目层":[{"维度":"科目层","指标":"专项转移支付收入","2023亿":57.4,"2024亿":79.2,"同比%":37.9,"灯":"🔴","阈值":"+30%/-15%"},{"维度":"科目层","指标":"债务转贷收入","2023亿":191.0,"2024亿":18.8,"同比%":-90.2,"灯":"🔴","阈值":"+50%/-25%"},{"维度":"科目层","指标":"债务还本支出","2023亿":157.4,"2024亿":5.1,"同比%":-96.8,"灯":"🔴","阈值":"+50%/-25%"},{"维度":"科目层","指标":"国资支出","2023亿":26.1,"2024亿":16.8,"同比%":-35.5,"灯":"🔴","阈值":"+50%/-30%"}],"外部验证":[{"维度":"外部验证","验证":"契税↔房地产交易","值":"契税+8.2%（缺销售面积外部数据）","灯":"🟡","结论":"契税大幅变动需与销售面积/价格核对"},{"维度":"外部验证","验证":"房产税同比","值":"+12.6%","灯":"🟡","结论":"房产税增长需与房产原值/价格核对（剪刀差检测）"},{"维度":"外部验证","验证":"土地增值税同比","值":"-4.1%","灯":"🟢","结论":"需与土地出让数据核对（滞后期）"}],"横向对比":[]},"全市":{"指标层":[{"维度":"指标层","指标":"宏观税负(税收/GDP)","值":"6.3%","灯":"🔴","警戒":"IMF: 发展中国家15-25%（税收/GDP）；8%以下偏低","说明":"越低越可疑：GDP虚增或税收流失"},{"维度":"指标层","指标":"净财政自给率","值":"101.9%","灯":"🟡","警戒":"NY-OSC: >70%较好；<30%依赖转移","说明":"越低越依赖上级"},{"维度":"指标层","指标":"运营赤字率","值":"42.3%","灯":"🔴","警戒":"NY-OSC: <10%","说明":"越高赤字越重"}],"科目层":[],"外部验证":[],"横向对比":[]}},"深圳":{"市本级":{"指标层":[],"科目层":[{"维度":"科目层","指标":"土地增值税","2023亿":191.5,"2024亿":102.3,"同比%":-46.6,"灯":"🔴","阈值":"+30%/-20%"},{"维度":"科目层","指标":"调入资金","2023亿":76.1,"2024亿":38.0,"同比%":-50.0,"灯":"🔴","阈值":"+50%/-30%"},{"维度":"科目层","指标":"债务转贷收入","2023亿":27.0,"2024亿":81.1,"同比%":200.5,"灯":"🔴","阈值":"+50%/-25%"},{"维度":"科目层","指标":"债务还本支出","2023亿":12.0,"2024亿":48.8,"同比%":306.8,"灯":"🔴","阈值":"+50%/-25%"},{"维度":"科目层","指标":"卫生健康支出","2023亿":326.8,"2024亿":182.3,"同比%":-44.2,"灯":"🔴","阈值":"+30%/-25%"},{"维度":"科目层","指标":"基金收入","2023亿":839.9,"2024亿":430.9,"同比%":-48.7,"灯":"🔴","阈值":"+30%/-30%"},{"维度":"科目层","指标":"基金支出","2023亿":500.7,"2024亿":677.6,"同比%":35.3,"灯":"🔴","阈值":"+30%/-30%"},{"维度":"科目层","指标":"国资支出","2023亿":58.6,"2024亿":38.3,"同比%":-34.6,"灯":"🔴","阈值":"+50%/-30%"}],"外部验证":[{"维度":"外部验证","验证":"契税↔房地产交易","值":"契税-3.2% vs 销售面积838.72万㎡(2024)","灯":"🟢","结论":"契税大幅变动需与销售面积/价格核对"},{"维度":"外部验证","验证":"房产税同比","值":"+5.0%","灯":"🟢","结论":"房产税增长需与房产原值/价格核对（剪刀差检测）"},{"维度":"外部验证","验证":"土地增值税同比","值":"-46.6%","灯":"🔴","结论":"需与土地出让数据核对（滞后期）"},{"维度":"外部验证","验证":"企业所得税↔工业","值":"企税-3.2% vs 规上工业+12.7%","灯":"🟢","结论":"企税变动需与工业利润核对"}],"横向对比":[]},"全市":{"指标层":[{"维度":"指标层","指标":"运营赤字率","值":"20.1%","灯":"🔴","警戒":"NY-OSC: <10%","说明":"越高赤字越重"}],"科目层":[{"维度":"科目层","指标":"土地增值税","2023亿":352.5,"2024亿":190.0,"同比%":-46.1,"灯":"🔴","阈值":"+30%/-20%"},{"维度":"科目层","指标":"调入资金","2023亿":240.6,"2024亿":145.3,"同比%":-39.6,"灯":"🔴","阈值":"+50%/-30%"},{"维度":"科目层","指标":"调出资金","2023亿":0.9,"2024亿":1.6,"同比%":71.4,"灯":"🔴","阈值":"+50%/-30%"},{"维度":"科目层","指标":"债务转贷收入","2023亿":27.0,"2024亿":81.1,"同比%":200.5,"灯":"🔴","阈值":"+50%/-25%"},{"维度":"科目层","指标":"卫生健康支出","2023亿":619.4,"2024亿":400.6,"同比%":-35.3,"灯":"🔴","阈值":"+30%/-25%"},{"维度":"科目层","指标":"基金收入","2023亿":875.5,"2024亿":475.0,"同比%":-45.8,"灯":"🔴","阈值":"+30%/-30%"},{"维度":"科目层","指标":"国资支出","2023亿":67.5,"2024亿":46.3,"同比%":-31.3,"灯":"🔴","阈值":"+50%/-30%"}],"外部验证":[{"维度":"外部验证","验证":"契税↔房地产交易","值":"契税-6.7% vs 销售面积838.72万㎡(2024)","灯":"🟡","结论":"契税大幅变动需与销售面积/价格核对"},{"维度":"外部验证","验证":"房产税同比","值":"+5.5%","灯":"🟡","结论":"房产税增长需与房产原值/价格核对（剪刀差检测）"},{"维度":"外部验证","验证":"土地增值税同比","值":"-46.1%","灯":"🔴","结论":"需与土地出让数据核对（滞后期）"},{"维度":"外部验证","验证":"企业所得税↔工业","值":"企税-1.3% vs 规上工业+12.7%","灯":"🟢","结论":"企税变动需与工业利润核对"}],"横向对比":[]}}},"verify":[{"type":"契税↔房价","cities":{"苏州":null,"杭州":{"light":"🟡","value":"契税-14.8%","dev":"-12.8pp","concl":"契税降幅远超房价跌幅→交易量萎缩主导","external":"新房同比-2.0%(2024-12)"},"宁波":{"light":"🟢","value":"契税-9.7%","dev":"-1.5pp","concl":"基本匹配","external":"新房同比-8.2%(2024-12)"},"广州":{"light":"🟡","value":"契税+8.2%","dev":"","concl":"契税+8.2% vs 广州GDP+2.1%→交易活跃或税基扩大（缺销售面积对比）","external":"广州公报未披露销售面积/房价"},"深圳":{"light":"🟢","value":"契税-6.7%","dev":"-0.6pp","concl":"基本匹配","external":"新房同比-6.1%(2024-12)"}}},{"type":"契税↔销售面积","cities":{"苏州":{"light":"🟡","value":"契税-20.4%","dev":"-15.3pp","concl":"契税与交易量背离→需查税基/征管","external":"销售面积-5.1%"},"杭州":{"light":"🟡","value":"契税-14.8%","dev":"+13.5pp","concl":"交易量主因","external":"销售面积-28.3%"},"宁波":{"light":"🟢","value":"契税-9.7%","dev":"+2.0pp","concl":"交易量主因","external":"销售面积-11.7%"},"广州":null,"深圳":null}},{"type":"土增税↔土地出让","cities":{"苏州":{"light":"🟡","value":"土增税+16.0%","dev":"","concl":"土增税变动 vs 土地市场（2023出让数据缺）","external":"2024土地出让757亿"},"杭州":{"light":"🟡","value":"土增税-20.2%","dev":"+5.4pp","concl":"基本匹配","external":"土地出让-25.6%"},"宁波":null,"广州":{"light":"🟢","value":"土增税-4.1%","dev":"","concl":"土增税微降 vs 土地出让1128亿（2023出让数据缺）","external":"2024土地出让1128亿"},"深圳":{"light":"🔴","value":"土增税-46.1%","dev":"-72.0pp","concl":"土增税与土地出让背离→清算延后/口径差异","external":"土地出让+25.9%"}}},{"type":"企税↔工业利润","cities":{"苏州":null,"杭州":null,"宁波":{"light":"🟢","value":"企税+0.6%","dev":"-3.7pp","concl":"匹配","external":"工业利润+4.2%"},"广州":{"light":"🟡","value":"企税+4.9%","dev":"+9.0pp","concl":"企税升/利润降→征管加强或利润结构变化","external":"工业利润-4.1%"},"深圳":{"light":"🟡","value":"企税-1.3%","dev":"-11.3pp","concl":"匹配","external":"工业利润+10.0%"}}},{"type":"财政收入↔用电量","cities":{"苏州":{"light":"🟡","value":"收入+0.1%","dev":"-8.3pp","concl":"匹配","external":"用电量+8.4%"},"杭州":{"light":"🟡","value":"收入+0.9%","dev":"-7.8pp","concl":"匹配","external":"用电量+8.7%"},"宁波":null,"广州":{"light":"🟡","value":"收入+0.7%","dev":"-5.6pp","concl":"匹配","external":"用电量+6.3%"},"深圳":{"light":"🟡","value":"收入-4.8%","dev":"-12.5pp","concl":"匹配","external":"用电量+7.6%"}}},{"type":"财政收入↔存款余额","cities":{"苏州":{"light":"🟢","value":"收入+0.1%","dev":"-1.0pp","concl":"匹配","external":"存款+1.1%"},"杭州":{"light":"🟢","value":"收入+0.9%","dev":"-1.6pp","concl":"匹配","external":"存款+2.5%"},"宁波":{"light":"🟡","value":"收入+0.3%","dev":"-7.2pp","concl":"匹配","external":"存款+7.4%"},"广州":{"light":"🟢","value":"收入+0.7%","dev":"-4.1pp","concl":"匹配","external":"存款+4.8%"},"深圳":{"light":"🟡","value":"收入-4.8%","dev":"-6.6pp","concl":"匹配","external":"存款+1.8%"}}}],"provinces":{"provinces":["宁夏","安徽","江苏","陕西"],"宁夏":{"docs":[{"year":2022,"scope":"全省","type":"决算报告","pages":12},{"year":2022,"scope":"区本级","type":"决算报表","pages":116},{"year":2023,"scope":"全省","type":"决算报告","pages":17},{"year":2023,"scope":"区本级","type":"决算报表","pages":115},{"year":2024,"scope":"全省","type":"决算报告","pages":12},{"year":2024,"scope":"区本级","type":"决算报表","pages":117}],"indicators":[{"name":"CPI","value":-0.3,"unit":"%"},{"name":"GDP增速","value":5.4,"unit":"%"},{"name":"GDP总量","value":5502.76,"unit":"亿元"},{"name":"一般公共预算收入","value":516.53,"unit":"亿元"},{"name":"人均GDP","value":75484.0,"unit":"元"},{"name":"存款余额","value":10072.36,"unit":"亿元"},{"name":"常住人口","value":729.0,"unit":"万人"},{"name":"社会消费品零售总额","value":1418.82,"unit":"亿元"},{"name":"税收收入","value":358.88,"unit":"亿元"},{"name":"第一产业","value":451.24,"unit":"亿元"},{"name":"第三产业","value":2716.16,"unit":"亿元"},{"name":"第二产业","value":2335.36,"unit":"亿元"},{"name":"规上工业利润","value":263.9,"unit":"亿元"},{"name":"贷款余额","value":10112.74,"unit":"亿元"},{"name":"进出口总额","value":206.13,"unit":"亿元"}],"final_inds":{"2024":{"税收收入":{"2024":3589402.0,"2023":null},"增值税":{"2024":1530544.0,"2023":null},"企业所得税":{"2024":362387.0,"2023":null},"个人所得税":{"2024":156352.0,"2023":null},"资源税":{"2024":311152.0,"2023":null},"城市维护建设税":{"2024":202090.0,"2023":null},"房产税":{"2024":193504.0,"2023":null},"印花税":{"2024":84784.0,"2023":null},"城镇土地使用税":{"2024":154867.0,"2023":null},"土地增值税":{"2024":152981.0,"2023":null},"耕地占用税":{"2024":134152.0,"2023":null},"契税":{"2024":218445.0,"2023":null},"非税收入":{"2024":1576461.0,"2023":null},"专项收入":{"2024":428905.0,"2023":null},"行政事业性收费收入":{"2024":203329.0,"2023":null},"罚没收入":{"2024":157448.0,"2023":null},"国有资本经营收入":{"2024":20735.0,"2023":null},"收入合计":{"2024":5165863.0,"2023":null},"结余结转调入":{"2024":143.0,"2023":null},"债务发行费用支出":{"2024":null,"2023":null},"支出合计":{"2024":17684951.0,"2023":null},"债务余额":{"2024":2489.5,"2023":null},"债务限额":{"2024":2889.1,"2023":null}},"2023":{}},"m110":{"口径":"全区口径","指标":{"宏观税负(税收/GDP)":{"value":0.06521818142168657,"unit":"%","note":"税收358.9亿/GDP5502.76亿","ok":true},"收入GDP弹性":{"value":null,"unit":"","note":"缺增速数据","ok":false},"人均GDP":{"value":75483.67626886145,"unit":"元/人","note":"","ok":true},"人均一般公共预算收入":{"value":7086.23182441701,"unit":"元/人","note":"","ok":true},"人均一般公共预算支出":{"value":24259.19204389575,"unit":"元/人","note":"","ok":true},"人均税收":{"value":4923.733882030178,"unit":"元/人","note":"","ok":true},"人均政府性基金收入":{"value":null,"unit":"元/人","note":"","ok":false},"人均居民可支配收入":{"value":null,"unit":"元/人","note":"","ok":false},"非税收入占比":{"value":0.305168952409307,"unit":"%","note":"","ok":true},"税收占比":{"value":0.694831047590693,"unit":"%","note":"","ok":true},"教育支出占比":{"value":null,"unit":"%","note":"","ok":false},"卫生健康支出占比":{"value":null,"unit":"%","note":"","ok":false},"社保就业支出占比":{"value":null,"unit":"%","note":"","ok":false},"刚性支出占比(教社卫)":{"value":0.0,"unit":"%","note":"","ok":true},"运营赤字率":{"value":2.4234262503670734,"unit":"%","note":"","ok":true},"经营赤字(NY-OSC)":{"value":-0.7078949780522434,"unit":"%","note":"","ok":true},"基金收支比":{"value":null,"unit":"","note":"","ok":false},"基金收入/一般收入":{"value":null,"unit":"%","note":"","ok":false},"国资收入/一般收入":{"value":null,"unit":"%","note":"","ok":false},"债务率(债务余额/GDP)":{"value":0.45240933640573094,"unit":"%","note":"债务余额2489.5亿/GDP5502.76亿","ok":true},"人均债务":{"value":34149.51989026063,"unit":"元/人","note":"","ok":true},"存款/GDP":{"value":1.8304196439604854,"unit":"%","note":"","ok":true},"贷款/存款":{"value":1.0040089909415468,"unit":"%","note":"","ok":true},"社零/GDP":{"value":0.25783788498862387,"unit":"%","note":"","ok":true},"CPI":{"value":-0.3,"unit":"%","note":"","ok":true},"居民收入/人均GDP":{"value":null,"unit":"%","note":"","ok":false},"一般公共预算收入同比":{"value":null,"unit":"%","note":"","ok":false},"税收收入同比":{"value":null,"unit":"%","note":"","ok":false},"非税收入同比":{"value":null,"unit":"%","note":"","ok":false}}},"risks":{"指标层":[{"指标":"宏观税负(税收/GDP)","值":"6.5%","灯":"🔴","警戒":"IMF: 15-25%"},{"指标":"非税收入占比","值":"30.5%","灯":"🟢","警戒":"ICMA: 非税>50%脆弱"},{"指标":"刚性支出占比(教社卫)","值":"0.0%","灯":"🟢","警戒":"ICMA: <60%"},{"指标":"运营赤字率","值":"242.3%","灯":"🔴","警戒":"NY-OSC: <10%"},{"指标":"债务率(债务余额/GDP)","值":"45.2%","灯":"🟢","警戒":"IMF: 60%马约线"}],"科目层":[],"外部验证":[{"验证":"决算收入 vs 公报收入","值":"516.6亿","灯":"🟢","结论":"决算报表口径"},{"验证":"税收/收入结构","值":"69.5%","灯":"🟢","结论":"税收占比(60-90%合理)"}],"横向对比":[{"指标":"运营赤字率","值":"242.3%","均值":"139.8%","Z":0.73,"灯":"🔴"},{"指标":"刚性支出占比(教社卫)","值":"0.0%","均值":"28.8%","Z":-1.0,"灯":"🔴"}]},"verifies":[{"验证":"一般公共预算收入/GDP","值":"9.4%","灯":"🟢","结论":"收入汲取能力(5-8%偏低)"},{"验证":"决算税收 vs 公报税收","值":"决算358.9亿 vs 公报358.9亿","偏差":"0.0%","灯":"🟢","结论":"口径一致"},{"验证":"决算收入 vs 公报收入","值":"决算516.6亿 vs 公报516.5亿","偏差":"0.0%","灯":"🟢","结论":"口径一致"},{"验证":"税收/收入结构","值":"69.5%","灯":"🟢","结论":"税收占比(65-90%健康)"}]},"安徽":{"docs":[{"year":2023,"scope":"全省","type":"决算报告","pages":17},{"year":2023,"scope":"省本级","type":"决算报表","pages":88},{"year":2024,"scope":"全省","type":"决算报告","pages":18},{"year":2024,"scope":"省本级","type":"决算报表","pages":94}],"indicators":[{"name":"CPI","value":0.5,"unit":"%"},{"name":"GDP增速","value":5.8,"unit":"%"},{"name":"GDP总量","value":50625.0,"unit":"亿元"},{"name":"一般公共预算支出","value":8995.2,"unit":"亿元"},{"name":"一般公共预算收入","value":4041.2,"unit":"亿元"},{"name":"人均GDP","value":82694.0,"unit":"元"},{"name":"商品房销售面积","value":3841.1,"unit":"万平方米"},{"name":"固定资产投资增速","value":11.2,"unit":"%"},{"name":"存款余额","value":91721.5,"unit":"亿元"},{"name":"常住人口","value":6123.0,"unit":"万人"},{"name":"社会消费品零售总额","value":24087.7,"unit":"亿元"},{"name":"税收收入","value":2601.2,"unit":"亿元"},{"name":"第一产业","value":3566.0,"unit":"亿元"},{"name":"第二产业","value":19607.0,"unit":"亿元"},{"name":"规上工业利润","value":2398.4,"unit":"亿元"},{"name":"贷款余额","value":86260.9,"unit":"亿元"},{"name":"进出口总额","value":8648.5,"unit":"亿元"}],"final_inds":{"2024":{"税收收入":{"2024":1576000.0,"2023":1572929.0},"增值税":{"2024":-630000.0,"2023":-625630.0},"企业所得税":{"2024":1699000.0,"2023":1683709.0},"个人所得税":{"2024":410000.0,"2023":411184.0},"资源税":{"2024":34781.0,"2023":null},"城市维护建设税":{"2024":19000.0,"2023":18626.0},"房产税":{"2024":4600.0,"2023":2667.0},"印花税":{"2024":2400.0,"2023":3316.0},"城镇土地使用税":{"2024":2700.0,"2023":1596.0},"土地增值税":{"2024":1900.0,"2023":2374.0},"耕地占用税":{"2024":48400.0,"2023":61946.0},"非税收入":{"2024":1074000.0,"2023":1462269.0},"专项收入":{"2024":440000.0,"2023":432801.0},"行政事业性收费收入":{"2024":95000.0,"2023":135086.0},"罚没收入":{"2024":18000.0,"2023":37274.0},"国有资本经营收入":{"2024":1.0,"2023":null},"国有资源有偿使用收入":{"2024":450000.0,"2023":795797.0},"收入合计":{"2024":2650000.0,"2023":3035198.0},"一般公共服务支出":{"2024":725049.0,"2023":632091.0},"教育支出":{"2024":1596339.0,"2023":1937793.0},"科学技术支出":{"2024":507133.0,"2023":508251.0},"文化旅游体育与传媒支出":{"2024":182555.0,"2023":115028.0},"社保就业支出":{"2024":440549.0,"2023":3564697.0},"卫生健康支出":{"2024":271800.0,"2023":318895.0},"节能环保支出":{"2024":69134.0,"2023":44391.0},"城乡社区支出":{"2024":24102.0,"2023":98.9},"农林水支出":{"2024":412937.0,"2023":836798.0},"交通运输支出":{"2024":530733.0,"2023":613366.0},"资源勘探工业信息等支出":{"2024":262355.0,"2023":191838.0},"商业服务业等支出":{"2024":34172.0,"2023":18162.0},"金融支出":{"2024":506366.0,"2023":97.4},"自然资源海洋气象等支出":{"2024":92297.0,"2023":108107.0},"住房保障支出":{"2024":190298.0,"2023":97.0},"粮油物资储备支出":{"2024":24011.0,"2023":211479.0},"灾害防治及应急管理支出":{"2024":24802.0,"2023":45110.0},"债务付息支出":{"2024":309228.0,"2023":100.0},"债务发行费用支出":{"2024":2000.0,"2023":100.0},"支出合计":{"2024":6775000.0,"2023":11392183.0},"债务限额":{"2024":1760.0,"2023":null}},"2023":{}},"m110":{"口径":"省本级口径(仅省级报表)","指标":{"宏观税负(税收/GDP)":{"value":0.05138172839506173,"unit":"%","note":"税收2601.2亿/GDP50625.0亿","ok":true},"收入GDP弹性":{"value":-2.188109252703187,"unit":"","note":"收入增速-12.7%/GDP增速5.8%","ok":true},"人均GDP":{"value":82680.05879470847,"unit":"元/人","note":"","ok":true},"人均一般公共预算收入":{"value":432.7943818389678,"unit":"元/人","note":"","ok":true},"人均一般公共预算支出":{"value":1106.4837497958517,"unit":"元/人","note":"","ok":true},"人均税收":{"value":257.3901682181937,"unit":"元/人","note":"","ok":true},"人均政府性基金收入":{"value":null,"unit":"元/人","note":"","ok":false},"人均居民可支配收入":{"value":null,"unit":"元/人","note":"","ok":false},"非税收入占比":{"value":0.4052830188679245,"unit":"%","note":"","ok":true},"税收占比":{"value":0.5947169811320755,"unit":"%","note":"","ok":true},"教育支出占比":{"value":0.2356219926199262,"unit":"%","note":"","ok":true},"卫生健康支出占比":{"value":0.04011808118081181,"unit":"%","note":"","ok":true},"社保就业支出占比":{"value":0.06502568265682657,"unit":"%","note":"","ok":true},"刚性支出占比(教社卫)":{"value":0.3407657564575646,"unit":"%","note":"","ok":true},"运营赤字率":{"value":1.5566037735849056,"unit":"%","note":"","ok":true},"经营赤字(NY-OSC)":{"value":-0.6088560885608856,"unit":"%","note":"","ok":true},"基金收支比":{"value":null,"unit":"","note":"","ok":false},"基金收入/一般收入":{"value":null,"unit":"%","note":"","ok":false},"国资收入/一般收入":{"value":null,"unit":"%","note":"","ok":false},"债务率(债务余额/GDP)":{"value":null,"unit":"%","note":"债务余额None亿/GDP50625.0亿","ok":false},"人均债务":{"value":null,"unit":"元/人","note":"","ok":false},"存款/GDP":{"value":1.8117827160493827,"unit":"%","note":"","ok":true},"贷款/存款":{"value":0.9404654306787393,"unit":"%","note":"","ok":true},"社零/GDP":{"value":0.4758064197530864,"unit":"%","note":"","ok":true},"CPI":{"value":0.5,"unit":"%","note":"","ok":true},"居民收入/人均GDP":{"value":null,"unit":"%","note":"","ok":false},"一般公共预算收入同比":{"value":-12.691033665678484,"unit":"%","note":"","ok":true},"税收收入同比":{"value":0.19524085321079337,"unit":"%","note":"","ok":true},"非税收入同比":{"value":-26.552501625897833,"unit":"%","note":"","ok":true}}},"risks":{"指标层":[{"指标":"宏观税负(税收/GDP)","值":"5.1%","灯":"🔴","警戒":"IMF: 15-25%"},{"指标":"非税收入占比","值":"40.5%","灯":"🟡","警戒":"ICMA: 非税>50%脆弱"},{"指标":"刚性支出占比(教社卫)","值":"34.1%","灯":"🟢","警戒":"ICMA: <60%"},{"指标":"运营赤字率","值":"155.7%","灯":"🔴","警戒":"NY-OSC: <10%"}],"科目层":[{"指标":"收入合计","2023亿":303.5,"2024亿":265.0,"同比%":-12.7,"灯":"🟡","阈值":"±50%"},{"指标":"非税收入","2023亿":146.2,"2024亿":107.4,"同比%":-26.6,"灯":"🟡","阈值":"±50%"},{"指标":"房产税","2023亿":0.3,"2024亿":0.5,"同比%":72.5,"灯":"🔴","阈值":"±30%"},{"指标":"教育支出","2023亿":193.8,"2024亿":159.6,"同比%":-17.6,"灯":"🟡","阈值":"±30%"},{"指标":"卫生健康支出","2023亿":31.9,"2024亿":27.2,"同比%":-14.8,"灯":"🟡","阈值":"±30%"},{"指标":"社保就业支出","2023亿":356.5,"2024亿":44.1,"同比%":-87.6,"灯":"🔴","阈值":"±30%"},{"指标":"支出合计","2023亿":1139.2,"2024亿":677.5,"同比%":-40.5,"灯":"🟡","阈值":"±50%"}],"外部验证":[{"验证":"决算收入 vs 公报收入","值":"265.0亿","灯":"🟢","结论":"决算报表口径"},{"验证":"税收/收入结构","值":"59.5%","灯":"🟡","结论":"税收占比(60-90%合理)"}],"横向对比":[{"指标":"非税收入占比","值":"40.5%","均值":"29.1%","Z":0.39,"灯":"🟡"}]},"verifies":[{"验证":"一般公共预算收入/GDP","值":"0.5%","灯":"🔴","结论":"收入汲取能力(5-8%偏低)"},{"验证":"决算税收 vs 公报税收","值":"决算157.6亿 vs 公报2601.2亿","偏差":"-93.9%","灯":"🔴","结论":"口径差异(省本级vs全省)"},{"验证":"决算收入 vs 公报收入","值":"决算265.0亿 vs 公报4041.2亿","偏差":"-93.4%","灯":"🔴","结论":"口径差异(省本级vs全省)"},{"验证":"收入增速 vs GDP增速","值":"收入-12.7% vs GDP5.8%","偏差":"-18.5pp","灯":"🔴","结论":"背离"},{"验证":"税收/收入结构","值":"59.5%","灯":"🟡","结论":"税收占比(65-90%健康)"}]},"江苏":{"docs":[{"year":2023,"scope":"省本级","type":"决算报表","pages":175},{"year":2024,"scope":"全省","type":"决算报告","pages":12},{"year":2024,"scope":"省本级","type":"决算报表","pages":171}],"indicators":[{"name":"CPI","value":0.5,"unit":"%"},{"name":"GDP增速","value":5.8,"unit":"%"},{"name":"GDP总量","value":137008.0,"unit":"亿元"},{"name":"一般公共预算支出","value":15293.9,"unit":"亿元"},{"name":"一般公共预算收入","value":10038.2,"unit":"亿元"},{"name":"人均GDP","value":160694.0,"unit":"元"},{"name":"城镇化率","value":75.5,"unit":"%"},{"name":"存款余额","value":248708.8,"unit":"亿元"},{"name":"居民人均可支配收入","value":55415.0,"unit":"元"},{"name":"常住人口","value":8526.0,"unit":"万人"},{"name":"社会消费品零售总额","value":44922.1,"unit":"亿元"},{"name":"税收收入","value":7642.0,"unit":"亿元"},{"name":"第一产业","value":5245.2,"unit":"亿元"},{"name":"第三产业","value":72582.8,"unit":"亿元"},{"name":"第二产业","value":59180.1,"unit":"亿元"},{"name":"贷款余额","value":258285.9,"unit":"亿元"}],"final_inds":{"2024":{"税收收入":{"2024":76420298.0,"2023":79769850.0},"增值税":{"2024":33641315.0,"2023":36651687.0},"企业所得税":{"2024":13400345.0,"2023":14087117.0},"个人所得税":{"2024":5000219.0,"2023":5053875.0},"资源税":{"2024":92821.0,"2023":93017.0},"城市维护建设税":{"2024":4498060.0,"2023":4862421.0},"房产税":{"2024":5111640.0,"2023":4057972.0},"印花税":{"2024":2188961.0,"2023":1965357.0},"城镇土地使用税":{"2024":1795785.0,"2023":1587279.0},"土地增值税":{"2024":3125301.0,"2023":3031488.0},"耕地占用税":{"2024":547699.0,"2023":614136.0},"契税":{"2024":5895298.0,"2023":6684392.0},"非税收入":{"2024":23961320.0,"2023":19531950.0},"专项收入":{"2024":4806606.0,"2023":4878796.0},"行政事业性收费收入":{"2024":3189473.0,"2023":2754230.0},"罚没收入":{"2024":2625437.0,"2023":2410236.0},"国有资本经营收入":{"2024":1235839.0,"2023":840925.0},"国有资源有偿使用收入":{"2024":9512587.0,"2023":7005172.0},"收入合计":{"2024":100381618.0,"2023":99301800.0},"一般公共服务支出":{"2024":12513091.0,"2023":13153956.0},"教育支出":{"2024":27578958.0,"2023":27099845.0},"科学技术支出":{"2024":7889566.0,"2023":7614649.0},"文化旅游体育与传媒支出":{"2024":2226516.0,"2023":2299322.0},"社保就业支出":{"2024":21341593.0,"2023":20483281.0},"卫生健康支出":{"2024":12287886.0,"2023":13840605.0},"节能环保支出":{"2024":2476548.0,"2023":2472167.0},"城乡社区支出":{"2024":17466384.0,"2023":17491280.0},"农林水支出":{"2024":12040761.0,"2023":11878187.0},"交通运输支出":{"2024":6118059.0,"2023":6000030.0},"资源勘探工业信息等支出":{"2024":4513284.0,"2023":4539308.0},"商业服务业等支出":{"2024":1193061.0,"2023":1111834.0},"金融支出":{"2024":728509.0,"2023":236208.0},"自然资源海洋气象等支出":{"2024":1371953.0,"2023":1318814.0},"住房保障支出":{"2024":9109755.0,"2023":8507249.0},"粮油物资储备支出":{"2024":393348.0,"2023":349467.0},"灾害防治及应急管理支出":{"2024":1015027.0,"2023":897984.0},"债务付息支出":{"2024":2482989.0,"2023":2558726.0},"债务发行费用支出":{"2024":8035.0,"2023":12095.0},"支出合计":{"2024":152935674.0,"2023":152422765.0},"基金收入合计":{"2024":80974264.0,"2023":null},"基金支出合计":{"2024":93322968.0,"2023":null},"国资收入合计":{"2024":4929692.0,"2023":null},"国资支出合计":{"2024":1495246.0,"2023":null}},"2023":{}},"m110":{"口径":"全省口径","指标":{"宏观税负(税收/GDP)":{"value":0.05577776480205535,"unit":"%","note":"税收7642.0亿/GDP137008.0亿","ok":true},"收入GDP弹性":{"value":0.1874845342595797,"unit":"","note":"收入增速1.1%/GDP增速5.8%","ok":true},"人均GDP":{"value":160694.34670419892,"unit":"元/人","note":"","ok":true},"人均一般公共预算收入":{"value":11773.588787239034,"unit":"元/人","note":"","ok":true},"人均一般公共预算支出":{"value":17937.56439127375,"unit":"元/人","note":"","ok":true},"人均税收":{"value":8963.206427398545,"unit":"元/人","note":"","ok":true},"人均政府性基金收入":{"value":9497.333333333334,"unit":"元/人","note":"","ok":true},"人均居民可支配收入":{"value":55415.0,"unit":"元/人","note":"","ok":true},"非税收入占比":{"value":0.23870226917442194,"unit":"%","note":"","ok":true},"税收占比":{"value":0.7612977308255781,"unit":"%","note":"","ok":true},"教育支出占比":{"value":0.18033044402707507,"unit":"%","note":"","ok":true},"卫生健康支出占比":{"value":0.08034676069103407,"unit":"%","note":"","ok":true},"社保就业支出占比":{"value":0.139546205550446,"unit":"%","note":"","ok":true},"刚性支出占比(教社卫)":{"value":0.4002234102685551,"unit":"%","note":"","ok":true},"运营赤字率":{"value":0.5235426270973237,"unit":"%","note":"","ok":true},"经营赤字(NY-OSC)":{"value":-0.34363503704178266,"unit":"%","note":"","ok":true},"基金收支比":{"value":0.8676777618131476,"unit":"","note":"","ok":true},"基金收入/一般收入":{"value":0.8066642639691263,"unit":"%","note":"","ok":true},"国资收入/一般收入":{"value":0.04910950927290293,"unit":"%","note":"","ok":true},"债务率(债务余额/GDP)":{"value":null,"unit":"%","note":"债务余额None亿/GDP137008.0亿","ok":false},"人均债务":{"value":null,"unit":"元/人","note":"","ok":false},"存款/GDP":{"value":1.8152866985869438,"unit":"%","note":"","ok":true},"贷款/存款":{"value":1.0385072824122026,"unit":"%","note":"","ok":true},"社零/GDP":{"value":0.3278793939040056,"unit":"%","note":"","ok":true},"CPI":{"value":0.5,"unit":"%","note":"","ok":true},"居民收入/人均GDP":{"value":0.34484722789910077,"unit":"%","note":"","ok":true},"一般公共预算收入同比":{"value":1.0874102987055623,"unit":"%","note":"","ok":true},"税收收入同比":{"value":-4.199020055823096,"unit":"%","note":"","ok":true},"非税收入同比":{"value":22.67756163619096,"unit":"%","note":"","ok":true}}},"risks":{"指标层":[{"指标":"宏观税负(税收/GDP)","值":"5.6%","灯":"🔴","警戒":"IMF: 15-25%"},{"指标":"非税收入占比","值":"23.9%","灯":"🟢","警戒":"ICMA: 非税>50%脆弱"},{"指标":"刚性支出占比(教社卫)","值":"40.0%","灯":"🟢","警戒":"ICMA: <60%"},{"指标":"运营赤字率","值":"52.4%","灯":"🔴","警戒":"NY-OSC: <10%"},{"指标":"基金收入/一般收入","值":"80.7%","灯":"🔴","警戒":"Kloha: 土地依赖<60%"}],"科目层":[{"指标":"非税收入","2023亿":1953.2,"2024亿":2396.1,"同比%":22.7,"灯":"🟡","阈值":"±50%"},{"指标":"增值税","2023亿":3665.2,"2024亿":3364.1,"同比%":-8.2,"灯":"🟡","阈值":"±30%"},{"指标":"房产税","2023亿":405.8,"2024亿":511.2,"同比%":26.0,"灯":"🟡","阈值":"±30%"},{"指标":"契税","2023亿":668.4,"2024亿":589.5,"同比%":-11.8,"灯":"🟡","阈值":"±30%"},{"指标":"卫生健康支出","2023亿":1384.1,"2024亿":1228.8,"同比%":-11.2,"灯":"🟡","阈值":"±30%"}],"外部验证":[{"验证":"决算收入 vs 公报收入","值":"10038.2亿","灯":"🟢","结论":"决算报表口径"},{"验证":"税收/收入结构","值":"76.1%","灯":"🟢","结论":"税收占比(60-90%合理)"}],"横向对比":[{"指标":"运营赤字率","值":"52.4%","均值":"139.8%","Z":-0.63,"灯":"🔴"},{"指标":"刚性支出占比(教社卫)","值":"40.0%","均值":"28.8%","Z":0.39,"灯":"🟡"}]},"verifies":[{"验证":"一般公共预算收入/GDP","值":"7.3%","灯":"🟡","结论":"收入汲取能力(5-8%偏低)"},{"验证":"决算税收 vs 公报税收","值":"决算7642.0亿 vs 公报7642.0亿","偏差":"0.0%","灯":"🟢","结论":"口径一致"},{"验证":"决算收入 vs 公报收入","值":"决算10038.2亿 vs 公报10038.2亿","偏差":"-0.0%","灯":"🟢","结论":"口径一致"},{"验证":"收入增速 vs GDP增速","值":"收入1.1% vs GDP5.8%","偏差":"-4.7pp","灯":"🟢","结论":"同步"},{"验证":"税收/收入结构","值":"76.1%","灯":"🟢","结论":"税收占比(65-90%健康)"}]},"陕西":{"docs":[{"year":2022,"scope":"全省","type":"决算报告","pages":20},{"year":2022,"scope":"省本级","type":"决算报表","pages":100},{"year":2023,"scope":"全省","type":"决算报告","pages":18},{"year":2023,"scope":"省本级","type":"决算报表","pages":69},{"year":2024,"scope":"全省","type":"决算报告","pages":6},{"year":2024,"scope":"省本级","type":"决算报表","pages":62}],"indicators":[{"name":"CPI","value":0.1,"unit":"%"},{"name":"GDP增速","value":5.3,"unit":"%"},{"name":"GDP总量","value":35538.77,"unit":"亿元"},{"name":"一般公共预算支出","value":7297.7,"unit":"亿元"},{"name":"一般公共预算收入","value":3393.1,"unit":"亿元"},{"name":"人均GDP","value":89915.0,"unit":"元"},{"name":"商品房销售面积","value":2487.57,"unit":"万平方米"},{"name":"固定资产投资增速","value":5.0,"unit":"%"},{"name":"存款余额","value":72213.44,"unit":"亿元"},{"name":"常住人口","value":3953.0,"unit":"万人"},{"name":"社会消费品零售总额","value":10935.96,"unit":"亿元"},{"name":"税收收入","value":2613.0,"unit":"亿元"},{"name":"第一产业","value":2621.96,"unit":"亿元"},{"name":"第三产业","value":18397.84,"unit":"亿元"},{"name":"第二产业","value":14518.97,"unit":"亿元"},{"name":"贷款余额","value":58180.15,"unit":"亿元"}],"final_inds":{"2024":{"税收收入":{"2024":26938536.0,"2023":26828498.0},"增值税":{"2024":9993109.0,"2023":8384587.0},"企业所得税":{"2024":4124634.0,"2023":4459813.0},"个人所得税":{"2024":1438048.0,"2023":1388775.0},"资源税":{"2024":5098719.0,"2023":6695720.0},"城市维护建设税":{"2024":1391744.0,"2023":1429326.0},"房产税":{"2024":1004588.0,"2023":848496.0},"印花税":{"2024":515334.0,"2023":437813.0},"城镇土地使用税":{"2024":560625.0,"2023":522603.0},"土地增值税":{"2024":770627.0,"2023":832725.0},"耕地占用税":{"2024":265824.0,"2023":362187.0},"契税":{"2024":1395542.0,"2023":1107144.0},"非税收入":{"2024":7437474.0,"2023":6287199.0},"专项收入":{"2024":2151255.0,"2023":2273032.0},"行政事业性收费收入":{"2024":1111889.0,"2023":818366.0},"罚没收入":{"2024":781386.0,"2023":689624.0},"国有资本经营收入":{"2024":44838.0,"2023":13593.0},"收入合计":{"2024":34376010.0,"2023":33115697.0},"一般公共服务支出":{"2024":6251330.0,"2023":6078876.0},"教育支出":{"2024":10894406.0,"2023":10603804.0},"科学技术支出":{"2024":1336800.0,"2023":1097821.0},"文化旅游体育与传媒支出":{"2024":1365131.0,"2023":1371346.0},"社保就业支出":{"2024":11859393.0,"2023":10712721.0},"卫生健康支出":{"2024":6790260.0,"2023":6640352.0},"节能环保支出":{"2024":2450100.0,"2023":2320137.0},"城乡社区支出":{"2024":5789073.0,"2023":5546260.0},"农林水支出":{"2024":7544895.0,"2023":7332112.0},"交通运输支出":{"2024":3280736.0,"2023":3089970.0},"资源勘探工业信息等支出":{"2024":2068782.0,"2023":null},"商业服务业等支出":{"2024":619160.0,"2023":595704.0},"金融支出":{"2024":1994808.0,"2023":593567.0},"自然资源海洋气象等支出":{"2024":823769.0,"2023":909679.0},"住房保障支出":{"2024":2431963.0,"2023":2453615.0},"粮油物资储备支出":{"2024":199080.0,"2023":199787.0},"灾害防治及应急管理支出":{"2024":817521.0,"2023":634341.0},"债务付息支出":{"2024":1603796.0,"2023":1542483.0},"债务发行费用支出":{"2024":8866.0,"2023":7176.0},"支出合计":{"2024":71750809.0,"2023":67609759.0}},"2023":{}},"m110":{"口径":"全省口径","指标":{"宏观税负(税收/GDP)":{"value":0.07352533585152217,"unit":"%","note":"税收2613.0亿/GDP35538.77亿","ok":true},"收入GDP弹性":{"value":0.7180730807519387,"unit":"","note":"收入增速3.8%/GDP增速5.3%","ok":true},"人均GDP":{"value":89903.28864153806,"unit":"元/人","note":"","ok":true},"人均一般公共预算收入":{"value":8696.182646091576,"unit":"元/人","note":"","ok":true},"人均一般公共预算支出":{"value":18150.976220591954,"unit":"元/人","note":"","ok":true},"人均税收":{"value":6814.706804958259,"unit":"元/人","note":"","ok":true},"人均政府性基金收入":{"value":null,"unit":"元/人","note":"","ok":false},"人均居民可支配收入":{"value":null,"unit":"元/人","note":"","ok":false},"非税收入占比":{"value":0.21635652305197722,"unit":"%","note":"","ok":true},"税收占比":{"value":0.7836434769480227,"unit":"%","note":"","ok":true},"教育支出占比":{"value":0.15183669915136427,"unit":"%","note":"","ok":true},"卫生健康支出占比":{"value":0.09463670298128625,"unit":"%","note":"","ok":true},"社保就业支出占比":{"value":0.16528584367599256,"unit":"%","note":"","ok":true},"刚性支出占比(教社卫)":{"value":0.4117592458086431,"unit":"%","note":"","ok":true},"运营赤字率":{"value":1.087234935060817,"unit":"%","note":"","ok":true},"经营赤字(NY-OSC)":{"value":-0.5208972486986174,"unit":"%","note":"","ok":true},"基金收支比":{"value":null,"unit":"","note":"","ok":false},"基金收入/一般收入":{"value":null,"unit":"%","note":"","ok":false},"国资收入/一般收入":{"value":null,"unit":"%","note":"","ok":false},"债务率(债务余额/GDP)":{"value":null,"unit":"%","note":"债务余额None亿/GDP35538.77亿","ok":false},"人均债务":{"value":null,"unit":"元/人","note":"","ok":false},"存款/GDP":{"value":2.0319622766910617,"unit":"%","note":"","ok":true},"贷款/存款":{"value":0.8056692770764001,"unit":"%","note":"","ok":true},"社零/GDP":{"value":0.30771914728618915,"unit":"%","note":"","ok":true},"CPI":{"value":0.1,"unit":"%","note":"","ok":true},"居民收入/人均GDP":{"value":null,"unit":"%","note":"","ok":false},"一般公共预算收入同比":{"value":3.805787327985275,"unit":"%","note":"","ok":true},"税收收入同比":{"value":0.4101534122409685,"unit":"%","note":"","ok":true},"非税收入同比":{"value":18.295508063288597,"unit":"%","note":"","ok":true}}},"risks":{"指标层":[{"指标":"宏观税负(税收/GDP)","值":"7.4%","灯":"🔴","警戒":"IMF: 15-25%"},{"指标":"非税收入占比","值":"21.6%","灯":"🟢","警戒":"ICMA: 非税>50%脆弱"},{"指标":"刚性支出占比(教社卫)","值":"41.2%","灯":"🟢","警戒":"ICMA: <60%"},{"指标":"运营赤字率","值":"108.7%","灯":"🔴","警戒":"NY-OSC: <10%"}],"科目层":[{"指标":"非税收入","2023亿":628.7,"2024亿":743.7,"同比%":18.3,"灯":"🟡","阈值":"±50%"},{"指标":"增值税","2023亿":838.5,"2024亿":999.3,"同比%":19.2,"灯":"🟡","阈值":"±30%"},{"指标":"企业所得税","2023亿":446.0,"2024亿":412.5,"同比%":-7.5,"灯":"🟡","阈值":"±30%"},{"指标":"房产税","2023亿":84.8,"2024亿":100.5,"同比%":18.4,"灯":"🟡","阈值":"±30%"},{"指标":"契税","2023亿":110.7,"2024亿":139.6,"同比%":26.0,"灯":"🟡","阈值":"±30%"},{"指标":"社保就业支出","2023亿":1071.3,"2024亿":1185.9,"同比%":10.7,"灯":"🟡","阈值":"±30%"},{"指标":"支出合计","2023亿":6761.0,"2024亿":7175.1,"同比%":6.1,"灯":"🟡","阈值":"±50%"}],"外部验证":[{"验证":"决算收入 vs 公报收入","值":"3437.6亿","灯":"🟢","结论":"决算报表口径"},{"验证":"税收/收入结构","值":"78.4%","灯":"🟢","结论":"税收占比(60-90%合理)"}],"横向对比":[{"指标":"非税收入占比","值":"21.6%","均值":"29.1%","Z":-0.26,"灯":"🟡"},{"指标":"刚性支出占比(教社卫)","值":"41.2%","均值":"28.8%","Z":0.43,"灯":"🟡"}]},"verifies":[{"验证":"一般公共预算收入/GDP","值":"9.7%","灯":"🟢","结论":"收入汲取能力(5-8%偏低)"},{"验证":"决算税收 vs 公报税收","值":"决算2693.9亿 vs 公报2613.0亿","偏差":"3.1%","灯":"🟢","结论":"口径一致"},{"验证":"决算收入 vs 公报收入","值":"决算3437.6亿 vs 公报3393.1亿","偏差":"1.3%","灯":"🟢","结论":"口径一致"},{"验证":"收入增速 vs GDP增速","值":"收入3.8% vs GDP5.3%","偏差":"-1.5pp","灯":"🟢","结论":"同步"},{"验证":"税收/收入结构","值":"78.4%","灯":"🟢","结论":"税收占比(65-90%健康)"}]},"summary":{"documents":19,"pages":1239,"tables":843}},"meta":{"title":"中国基层城市财政风险分析","generated":"2026-08-16","note":"数据源：2023-2024 决算 + 统计公报 + 第2层外部数据（房价/土地/存款/用电量/工业利润）"}};
+
+// ============ 工具 ============
+function lightClass(l){return l==='🔴'?'light-red':l==='🟡'?'light-yellow':l==='🟢'?'light-green':'';}
+function badgeHtml(l){if(l==='🔴')return '<span class="badge badge-red">🔴 红</span>';if(l==='🟡')return '<span class="badge badge-yellow">🟡 黄</span>';if(l==='🟢')return '<span class="badge badge-green">🟢 绿</span>';return '<span class="badge">⚪</span>';}
+function fmtVal(v,unit){if(v===null||v===undefined)return '—';if(unit==='%')return (v*100).toFixed(1)+'%';if(unit==='元/人')return Math.round(v).toLocaleString();if(unit==='万元')return (v/10000).toFixed(1)+'亿';return v;}
+
+// ============ Tab ============
+const LEVEL1 = ['indicator', 'province', 'city'];
+const LEVEL2 = ['overview', 'metrics', 'risks', 'verify'];
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const tab = btn.dataset.tab;
+    if (LEVEL1.includes(tab)) {
+      // 一级选项卡：隐藏所有一级面板，显示对应
+      LEVEL1.forEach(id => document.getElementById(id).classList.remove('active'));
+      document.getElementById(tab).classList.add('active');
+      // 同步二级按钮状态（city 内的二级按钮）
+      document.querySelectorAll('.tab-btn[data-tab]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      // 进入 city 时默认显示 overview
+      if (tab === 'city') {
+        LEVEL2.forEach(id => document.getElementById(id).classList.remove('active'));
+        document.getElementById('overview').classList.add('active');
+        document.querySelector('.tab-btn[data-tab="overview"]').classList.add('active');
+        setTimeout(renderCharts, 50);
+      }
+      if (tab === 'province') { /* 省级表在 init 时已渲染 */ }
+    } else if (LEVEL2.includes(tab)) {
+      // 二级选项卡：只切换 city 内面板
+      LEVEL2.forEach(id => document.getElementById(id).classList.remove('active'));
+      document.getElementById(tab).classList.add('active');
+      document.querySelectorAll('.tab-btn[data-tab]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelector('.tab-btn[data-tab="city"]').classList.add('active');
+      if (tab === 'overview') setTimeout(renderCharts, 50);
+    }
+  });
+});
+
+// ============ 1. 总览 ============
+function renderCityCards(){
+  const grid=document.getElementById('cityCards');grid.innerHTML='';
+  DATA.cities.forEach(city=>{
+    const a=DATA.anomaly[city]['市本级'];const rate=a['异常率'];
+    const cls=rate===null?'':(rate>30?'red':rate>10?'yellow':'green');
+    const light=rate===null?'⚪':(rate>30?'🔴':rate>10?'🟡':'🟢');
+    const barColor=rate===null?'#555':(rate>30?'var(--red)':rate>10?'var(--yellow)':'var(--green)');
+    grid.innerHTML+=`<div class="city-card" onclick="document.querySelector('.tab-btn[data-tab=city]').click();document.querySelector('.tab-btn[data-tab=risks]').click();document.getElementById('riskCity').value='${city}';renderRiskTable();">
+      <div class="name">${city} ${light}</div>
+      <div class="rate ${cls}">${rate===null?'—':rate+'%'}</div>
+      <div class="detail">异常率（科目层红灯/可算）：${a['科目层']}/${a['可算']} 项</div>
+      <div class="detail">四维风险：${a['合计']} 条（指标${a['指标层']} 科目${a['科目层']} 外部${a['外部']} 横向${a['横向']}）</div>
+      <div class="rate-bar"><div class="fill" style="width:${rate||0}%;background:${barColor}"></div></div>
+    </div>`;
+  });
+}
+function renderCharts(){
+  const cities=DATA.cities;
+  const ch1=echarts.init(document.getElementById('chartAnomaly'));
+  ch1.setOption({backgroundColor:'transparent',tooltip:{trigger:'axis'},legend:{data:['市本级','全市'],textStyle:{color:'#8b98a7'}},grid:{left:40,right:20,top:40,bottom:30},
+    xAxis:{type:'category',data:cities,axisLabel:{color:'#8b98a7'},axisLine:{lineStyle:{color:'#2e3a48'}}},
+    yAxis:{type:'value',name:'异常率 %',axisLabel:{color:'#8b98a7'},splitLine:{lineStyle:{color:'#232c38'}}},
+    series:[
+      {name:'市本级',type:'bar',data:cities.map(c=>DATA.anomaly[c]['市本级']['异常率']),itemStyle:{color:p=>p.value>30?'#e05d5d':p.value>10?'#e0b45d':'#5dc47a',borderRadius:[4,4,0,0]},label:{show:true,position:'top',color:'#e8edf2',formatter:'{c}%'}},
+      {name:'全市',type:'bar',data:cities.map(c=>DATA.anomaly[c]['全市']['异常率']),itemStyle:{color:'rgba(93,156,224,.55)',borderRadius:[4,4,0,0]},label:{show:true,position:'top',color:'#8b98a7',formatter:'{c}%'}}
+    ]});
+  const ch2=echarts.init(document.getElementById('chartRiskDim'));
+  const dims=['指标层','科目层','外部验证','横向对比'];const dimColors=['#5d9ce0','#e05d5d','#e0b45d','#5dc47a'];
+  ch2.setOption({backgroundColor:'transparent',tooltip:{trigger:'axis'},legend:{data:dims,textStyle:{color:'#8b98a7'}},grid:{left:40,right:20,top:40,bottom:30},
+    xAxis:{type:'category',data:cities,axisLabel:{color:'#8b98a7'},axisLine:{lineStyle:{color:'#2e3a48'}}},
+    yAxis:{type:'value',name:'风险条数',axisLabel:{color:'#8b98a7'},splitLine:{lineStyle:{color:'#232c38'}}},
+    series:dims.map((d,i)=>({name:d,type:'bar',stack:'total',data:cities.map(c=>DATA.anomaly[c]['市本级'][d==='外部验证'?'外部':d==='横向对比'?'横向':d]),itemStyle:{color:dimColors[i]}}))});
+}
+
+// ============ 2. 110 指标 ============
+function renderMetricTable(){
+  const scope=document.getElementById('metricScope').value;
+  const cat=document.getElementById('metricCat').value;
+  const cities=DATA.cities;
+  const keys=Object.keys(DATA.metrics[cities[0]][scope]);
+  let head='<tr><th>指标</th>';cities.forEach(c=>head+=`<th>${c}（${scope==='市本级'?'本级':'全市'}）</th>`);head+='</tr>';
+  document.querySelector('#metricTable thead').innerHTML=head;
+  let body='';
+  keys.forEach(key=>{
+    const m0=DATA.metrics[cities[0]][scope][key];
+    if(cat!=='all'&&m0.cat!==cat)return;
+    body+=`<tr><td style="color:var(--muted);font-weight:600">${m0.label}</td>`;
+    cities.forEach(c=>{
+      const m=DATA.metrics[c][scope][key];
+      let v=m.value,unit=m.unit;
+      let cls='';
+      if(key==='运营赤字'&&scope==='市本级'){body+=`<td>—<span style="color:#666;font-size:11px">(全市口径)</span></td>`;return;}
+      if(unit==='%'&&v!==null){
+        const av=Math.abs(v*100);
+        if(['土地出让依赖度','弹性收入/总收入','强制支出占比'].includes(key))cls=av>60?'light-red':av>40?'light-yellow':'light-green';
+        else if(key==='运营赤字')cls=av>10?'light-red':av>5?'light-yellow':'light-green';
+        else if(key==='收入汲取能力-GDP法')cls=v*100<8?'light-yellow':'light-green';
+      }
+      body+=`<td class="${cls}">${fmtVal(v,unit)}</td>`;
+    });
+    body+='</tr>';
+  });
+  if(!body)body='<tr><td colspan="6" style="text-align:center;color:var(--muted)">无该类别指标</td></tr>';
+  document.querySelector('#metricTable tbody').innerHTML=body;
+}
+document.getElementById('metricScope').addEventListener('change',renderMetricTable);
+document.getElementById('metricCat').addEventListener('change',renderMetricTable);
+
+// ============ 3. 风险 ============
+function renderRiskTable(){
+  const city=document.getElementById('riskCity').value;
+  const scope=document.getElementById('riskScope').value;
+  const dim=document.getElementById('riskDim').value;
+  const data=(DATA.risks[city]&&DATA.risks[city][scope])||{};
+  // 展开分组对象 → 扁平数组
+  let items=[];
+  Object.keys(data).forEach(dimKey=>{
+    if(Array.isArray(data[dimKey])){
+      data[dimKey].forEach(it=>{ if(it&&typeof it==='object') items.push(it); });
+    }
+  });
+  let body='';
+  items.forEach(it=>{
+    const itDim=it['维度']||'';
+    if(dim!=='all'&&itDim!==dim)return;
+    let detail='';
+    if(itDim==='科目层')detail=`${it['2023亿']}亿→${it['2024亿']}亿 (${it['同比%']}%)`;
+    else if(itDim==='指标层')detail=it['值'];
+    else if(itDim==='外部验证')detail=it['值'];
+    else if(itDim==='横向对比')detail=`${it['值']} vs 均值${it['均值']}`;
+    const note=itDim==='科目层'?`阈值${it['阈值']}`:(itDim==='指标层'?it['警戒']:(itDim==='外部验证'?it['结论']:`Z=${it['Z']}`));
+    const name=itDim==='科目层'?it['指标']:(itDim==='指标层'?it['指标']:(itDim==='外部验证'?it['验证']:it['指标']));
+    body+=`<tr><td>${itDim}</td><td style="font-weight:600">${name}</td><td>${detail}</td><td>${badgeHtml(it['灯'])}</td><td style="color:var(--muted);font-size:12px">${note}</td></tr>`;
+  });
+  if(!body)body='<tr><td colspan="5" style="text-align:center;color:var(--muted)">无风险记录</td></tr>';
+  document.querySelector('#riskTable tbody').innerHTML=body;
+}
+document.getElementById('riskCity').addEventListener('change',renderRiskTable);
+document.getElementById('riskScope').addEventListener('change',renderRiskTable);
+document.getElementById('riskDim').addEventListener('change',renderRiskTable);
+
+// ============ 4. 验证 ============
+function renderVerifyTable(){
+  const cities=DATA.cities;
+  let head='<tr><th>验证类型</th>';cities.forEach(c=>head+=`<th>${c}</th>`);head+='</tr>';
+  document.querySelector('#verifyTable thead').innerHTML=head;
+  let body='';
+  DATA.verify.forEach(row=>{
+    body+=`<tr><td>${row.type}</td>`;
+    cities.forEach(c=>{
+      const it=row.cities[c];
+      if(!it){body+='<td>—</td>';return;}
+      const dev=it.dev?` (${it.dev})`:'';
+      body+=`<td class="${lightClass(it.light)}"><div class="cell-val">${it.light} ${it.value}${dev}</div><div class="cell-concl">${it.concl}</div></td>`;
+    });
+    body+='</tr>';
+  });
+  document.querySelector('#verifyTable tbody').innerHTML=body;
+}
+
+// ============ 5. 省级 ============
+function renderProvince(){
+  const p=DATA.provinces;
+  const provList = p.provinces || [];
+  // 公报关键指标表（横轴=省份，纵轴=指标）
+  const IND_ORDER = ['GDP总量','GDP增速','人均GDP','常住人口','一般公共预算收入','税收收入','一般公共预算支出','存款余额','贷款余额','规上工业利润','全社会用电量','商品房销售面积','CPI','社会消费品零售总额','进出口总额'];
+  const indProvinces = provList.filter(pr => p[pr] && p[pr].indicators && p[pr].indicators.length > 0);
+  if (indProvinces.length === 0) {
+    document.getElementById('provIndTable').innerHTML = '<tr><td style="color:var(--muted);text-align:center">暂无省级公报指标</td></tr>';
+    return;
+  }
+  let ih = '<tr><th>指标</th>';
+  indProvinces.forEach(pr => ih += `<th>${pr}</th>`);
+  ih += '</tr>';
+  document.querySelector('#provIndTable thead').innerHTML = ih;
+  let ib = '';
+  IND_ORDER.forEach(name => {
+    let row = `<tr><td style="color:var(--muted);font-weight:600">${name}</td>`;
+    let hasAny = false;
+    indProvinces.forEach(pr => {
+      const it = (p[pr].indicators || []).find(i => i.name === name);
+      if (it) { row += `<td>${it.value.toLocaleString()} ${it.unit}</td>`; hasAny = true; }
+      else row += '<td>—</td>';
+    });
+    row += '</tr>';
+    if (hasAny) ib += row;
+  });
+  document.querySelector('#provIndTable tbody').innerHTML = ib || '<tr><td colspan="6" style="text-align:center;color:var(--muted)">暂无数据</td></tr>';
+  // 省级决算核心指标矩阵（横轴=省份，纵轴=指标，2024值+同比）
+  const FIN_ORDER = ['税收收入','非税收入','增值税','企业所得税','个人所得税','房产税','契税','土地增值税','教育支出','卫生健康支出','社保就业支出','债务付息支出'];
+  const finProvinces = provList.filter(pr => p[pr] && p[pr].final_inds && p[pr].final_inds['2024']);
+  if (finProvinces.length === 0) {
+    document.getElementById('provFinTable').innerHTML = '<tr><td style="color:var(--muted);text-align:center">暂无省级决算指标</td></tr>';
+    return;
+  }
+  let fh = '<tr><th>指标（万元）</th>';
+  finProvinces.forEach(pr => fh += `<th>${pr} 2024</th><th>同比%</th>`);
+  fh += '</tr>';
+  document.querySelector('#provFinTable thead').innerHTML = fh;
+  let fb = '';
+  FIN_ORDER.forEach(name => {
+    let row = `<tr><td style="color:var(--muted);font-weight:600">${name}</td>`;
+    let hasAny = false;
+    finProvinces.forEach(pr => {
+      const it = p[pr].final_inds['2024'][name];
+      if (it && it['2024'] !== null && it['2024'] !== undefined) {
+        const v24 = it['2024'], v23 = it['2023'];
+        const chg = (v23 && v23 !== 0) ? (((v24 - v23) / Math.abs(v23)) * 100).toFixed(1) + '%' : '—';
+        let cls = '';
+        if (chg !== '—') {
+          const c = parseFloat(chg);
+          cls = Math.abs(c) > 30 ? 'light-red' : Math.abs(c) > 5 ? 'light-yellow' : 'light-green';
+        }
+        row += `<td>${(v24/10000).toFixed(1)}亿</td><td class="${cls}">${chg}</td>`;
+        hasAny = true;
+      } else {
+        row += '<td>—</td><td>—</td>';
+      }
+    });
+    row += '</tr>';
+    if (hasAny) fb += row;
+  });
+  document.querySelector('#provFinTable tbody').innerHTML = fb || '<tr><td colspan="9" style="text-align:center;color:var(--muted)">暂无数据</td></tr>';
+  renderProvM110(); renderProvRisk(); renderProvVerify();
+}
+
+// ============ 省级 110 指标对比矩阵 ============
+function renderProvM110(){
+  const p=DATA.provinces;
+  const provList = (p.provinces||[]).filter(pr => p[pr] && p[pr].m110 && p[pr].m110['指标']);
+  if(provList.length===0){ document.getElementById('provM110Table').innerHTML='<tr><td style="color:var(--muted)">暂无省级指标</td></tr>'; return; }
+  const KEYS=['宏观税负(税收/GDP)','人均GDP','人均一般公共预算收入','人均一般公共预算支出','非税收入占比','刚性支出占比(教社卫)','运营赤字率','债务率(债务余额/GDP)','人均债务','收入GDP弹性','一般公共预算收入同比','税收收入同比','非税收入同比'];
+  const PCT_KEYS=['宏观税负(税收/GDP)','非税收入占比','刚性支出占比(教社卫)','运营赤字率','债务率(债务余额/GDP)'];
+  let h='<tr><th>指标</th>';
+  provList.forEach(pr=>{ h+=`<th>${pr}<br><span style="font-weight:normal;font-size:11px;color:var(--muted)">${(p[pr].m110['口径']||'').replace('口径','')}</span></th>`; });
+  h+='</tr>';
+  document.querySelector('#provM110Table thead').innerHTML=h;
+  let b='';
+  KEYS.forEach(k=>{
+    let row=`<tr><td style="white-space:nowrap">${k}</td>`;
+    let has=false;
+    provList.forEach(pr=>{
+      const v=p[pr].m110['指标']&&p[pr].m110['指标'][k]?p[pr].m110['指标'][k].value:null;
+      if(v===null||v===undefined){ row+='<td class="muted">—</td>'; return; }
+      has=true;
+      let txt;
+      if(PCT_KEYS.includes(k)) txt=(v*100).toFixed(1)+'%';
+      else if(k==='收入GDP弹性') txt=v.toFixed(2);
+      else txt=Math.round(v).toLocaleString();
+      // 红绿灯（按绝对值偏差）
+      let cls='';
+      const av=Math.abs(v);
+      if(PCT_KEYS.includes(k)){ const pv=v*100; cls=Math.abs(pv)>30?'light-red':Math.abs(pv)>5?'light-yellow':'light-green'; }
+      row+=`<td class="${cls}">${txt}</td>`;
+    });
+    if(has) b+=row+'</tr>';
+  });
+  document.querySelector('#provM110Table tbody').innerHTML=b||'<tr><td colspan="9" style="text-align:center;color:var(--muted)">暂无数据</td></tr>';
+}
+
+// ============ 省级风险识别清单 ============
+function renderProvRisk(){
+  const p=DATA.provinces;
+  const provList=(p.provinces||[]).filter(pr=>p[pr]&&p[pr].risks);
+  let b='';
+  provList.forEach(pr=>{
+    const rk=p[pr].risks;
+    (rk['指标层']||[]).forEach(r=>{ b+=`<tr><td>${pr}</td><td>指标层</td><td>${r.指标}</td><td>${r.值}</td><td>${r.警戒||''}</td><td class="light-${r.灯==='🔴'?'red':r.灯==='🟡'?'yellow':'green'}">${r.灯}</td></tr>`; });
+    (rk['科目层']||[]).forEach(r=>{ b+=`<tr><td>${pr}</td><td>科目层</td><td>${r.指标}</td><td>${r['2023亿']}→${r['2024亿']}亿 (${r['同比%']}%)</td><td>阈值±${r.阈值}</td><td class="light-${r.灯==='🔴'?'red':r.灯==='🟡'?'yellow':'green'}">${r.灯}</td></tr>`; });
+    (rk['外部验证']||[]).forEach(r=>{ b+=`<tr><td>${pr}</td><td>外部验证</td><td>${r.验证}</td><td>${r.值}</td><td>${r.结论||''}</td><td class="light-${r.灯==='🔴'?'red':r.灯==='🟡'?'yellow':'green'}">${r.灯}</td></tr>`; });
+    (rk['横向对比']||[]).forEach(r=>{ b+=`<tr><td>${pr}</td><td>横向对比</td><td>${r.指标}</td><td>${r.值}</td><td>均值${r.均值}, Z=${r.Z}</td><td class="light-${r.灯==='🔴'?'red':r.灯==='🟡'?'yellow':'green'}">${r.灯}</td></tr>`; });
+  });
+  document.querySelector('#provRiskTable tbody').innerHTML=b||'<tr><td colspan="6" style="text-align:center;color:var(--muted)">暂无风险</td></tr>';
+}
+
+// ============ 省级交叉验证 ============
+function renderProvVerify(){
+  const p=DATA.provinces;
+  const provList=(p.provinces||[]).filter(pr=>p[pr]&&p[pr].verifies);
+  let b='';
+  provList.forEach(pr=>{
+    p[pr].verifies.forEach(v=>{
+      b+=`<tr><td>${pr}</td><td>${v.验证}</td><td>${v.值}</td><td>${v.偏差||'—'}</td><td>${v.结论}</td><td class="light-${v.灯==='🔴'?'red':v.灯==='🟡'?'yellow':'green'}">${v.灯}</td></tr>`;
+    });
+  });
+  document.querySelector('#provVerifyTable tbody').innerHTML=b||'<tr><td colspan="6" style="text-align:center;color:var(--muted)">暂无验证</td></tr>';
+}
+
+// ============ 初始化 ============
+function init(){
+  const sel=document.getElementById('riskCity');sel.innerHTML='';
+  DATA.cities.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;sel.appendChild(o);});
+  renderCityCards();renderMetricTable();renderRiskTable();renderVerifyTable();renderProvince();renderCharts();
+}
+init();
+</script>
+</body>
+</html>
