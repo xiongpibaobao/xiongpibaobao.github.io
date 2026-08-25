@@ -523,6 +523,7 @@ function renderProvRisk(){
     (rk['科目层']||[]).forEach(r=>{ b+=`<tr><td>${pr}</td><td>科目层</td><td>${r.指标}</td><td>${r['2023亿']}→${r['2024亿']}亿 (${r['同比%']}%)</td><td>阈值±${r.阈值}</td><td class="light-${r.灯==='🔴'?'red':r.灯==='🟡'?'yellow':'green'}">${r.灯}</td><td style="font-size:11px;color:#5b8dc9">${lawCellHtml(r)}</td></tr>`; });
     (rk['外部验证']||[]).forEach(r=>{ b+=`<tr><td>${pr}</td><td>外部验证</td><td>${r.验证}</td><td>${r.值}</td><td>${r.结论||''}</td><td class="light-${r.灯==='🔴'?'red':r.灯==='🟡'?'yellow':'green'}">${r.灯}</td><td style="font-size:11px;color:#5b8dc9">${lawCellHtml(r)}</td></tr>`; });
     (rk['横向对比']||[]).forEach(r=>{ b+=`<tr><td>${pr}</td><td>横向对比</td><td>${r.指标}</td><td>${r.值}</td><td>均值${r.均值}, Z=${r.Z}</td><td class="light-${r.灯==='🔴'?'red':r.灯==='🟡'?'yellow':'green'}">${r.灯}</td><td style="font-size:11px;color:#5b8dc9">${lawCellHtml(r)}</td></tr>`; });
+    (rk['调入合规']||[]).forEach(r=>{ b+=`<tr><td>${pr}</td><td style="color:#8e44ad;font-weight:600">调入合规</td><td>${r.指标}</td><td>${r.值}</td><td>${r.判定}（阈值${r.阈值}）</td><td class="light-${r.灯==='🔴'?'red':r.灯==='🟡'?'yellow':'green'}">${r.灯}</td><td style="font-size:11px;color:#5b8dc9">${lawCellHtml(r)}</td></tr>`; });
   });
   document.querySelector('#provRiskTable tbody').innerHTML=b||'<tr><td colspan="7" style="text-align:center;color:var(--muted)">暂无风险</td></tr>';
 }
