@@ -1107,8 +1107,7 @@ function renderProvince(){
   const indProvinces = provList.filter(pr => p[pr] && p[pr].indicators && p[pr].indicators.length > 0);
   if (indProvinces.length === 0) {
     document.getElementById('provIndTable').innerHTML = '<tr><td style="color:var(--muted);text-align:center">暂无省级公报指标</td></tr>';
-    return;
-  }
+  } else {
   let ih = '<tr><th>指标</th>';
   indProvinces.forEach(pr => ih += `<th>${pr}</th>`);
   ih += '</tr>';
@@ -1126,6 +1125,8 @@ function renderProvince(){
     if (hasAny) ib += row;
   });
   document.querySelector('#provIndTable tbody').innerHTML = ib || '<tr><td colspan="6" style="text-align:center;color:var(--muted)">暂无数据</td></tr>';
+  }
+  // ⚠️ 这三个渲染调用必须在守卫分支之外，否则数据缺失时会连带跳过（2026-09-11 修复）
   renderProvM110(); renderProvRisk(); renderProvVerify();
 }
 
