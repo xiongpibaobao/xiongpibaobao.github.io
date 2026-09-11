@@ -453,6 +453,121 @@ footer { padding:20px 32px; border-top:1px solid var(--border); color:var(--mute
       本级支出几乎完全依靠历年积累的存量基金支撑；而江苏、陕西为"安排&gt;动用"（净补充），处于健康状态。
     </div>
 
+
+    <div class="section-title" style="margin-top:30px"><span class="bar"></span>🚨 异常观测点（权责发生制列支 + 其他调入资金）</div>
+    <div class="method-box" style="margin-bottom:14px">
+      <p style="line-height:1.85;font-size:13px;margin:4px 0">
+        这两类字段<b>最容易发生异常</b>：<b>权责发生制列支</b>决定"决算支出 ≠ 实际付款"的规模；
+        <b>「从其他资金调入」</b>没有跨预算对手方，是"调入虚增"的技术窗口。
+        下表把它们做成<b>带触发阈值的观测点</b>，并给出 2023–2025 实测。
+      </p>
+    </div>
+    <div style="overflow-x:auto">
+    <table class="acct-tbl" style="min-width:1120px">
+      <thead><tr>
+        <th style="width:38px">#</th><th style="width:190px">观测点</th><th style="width:170px">触发阈值</th>
+        <th>2023–2025 实测</th><th style="width:38px">灯</th><th style="width:96px">是否命中</th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td style="text-align:center"><b>O1</b></td>
+          <td><b>权责发生制列支突增</b><br><span style="font-size:11.5px;color:#5D8AB0">权责发生制列支资金</span></td>
+          <td style="font-size:12px">同比增幅 &gt;50% 🟡 ｜ &gt;100% 🔴</td>
+          <td style="font-size:12.5px">安徽省级：10.8亿(2024) → 21.2亿(2025)，同比 96.3%</td>
+          <td style="text-align:center;font-size:15px">🔴</td>
+          <td style="text-align:center;font-size:12px;color:#c0392b;font-weight:600">✅ 命中</td>
+        </tr>
+        <tr>
+          <td style="text-align:center"><b>O2</b></td>
+          <td><b>列支挂账率</b><br><span style="font-size:11.5px;color:#5D8AB0">权责发生制列支 ÷ 本级一般公共预算支出</span></td>
+          <td style="font-size:12px">&gt;3% 🟡 ｜ &gt;8% 🔴</td>
+          <td style="font-size:12.5px">安徽省级2025：21.2 ÷ 1073.8 = 1.97%</td>
+          <td style="text-align:center;font-size:15px">🟢</td>
+          <td style="text-align:center;font-size:12px;color:#2e7d32;font-weight:600">未命中</td>
+        </tr>
+        <tr>
+          <td style="text-align:center"><b>O3</b></td>
+          <td><b>无对手方调入突增</b><br><span style="font-size:11.5px;color:#5D8AB0">从其他资金调入</span></td>
+          <td style="font-size:12px">同比增幅 &gt;50% 🟡 ｜ &gt;100% 🔴</td>
+          <td style="font-size:12.5px">江苏省级：36.3亿(2023) → 80.01亿(2024)，同比 120.4%；2025 为 95.18亿（同比 19.0%）</td>
+          <td style="text-align:center;font-size:15px">🔴</td>
+          <td style="text-align:center;font-size:12px;color:#c0392b;font-weight:600">✅ 命中（2024年）</td>
+        </tr>
+        <tr>
+          <td style="text-align:center"><b>O4</b></td>
+          <td><b>无对手方调入占比</b><br><span style="font-size:11.5px;color:#5D8AB0">从其他资金调入 ÷ 调入资金合计</span></td>
+          <td style="font-size:12px">&gt;30% 🟡 ｜ &gt;50% 🔴</td>
+          <td style="font-size:12.5px">江苏省级：40.0%(2023) → 68.5%(2024) → 67.6%(2025)</td>
+          <td style="text-align:center;font-size:15px">🔴</td>
+          <td style="text-align:center;font-size:12px;color:#c0392b;font-weight:600">✅ 连续两年命中</td>
+        </tr>
+        <tr>
+          <td style="text-align:center"><b>O5</b></td>
+          <td><b>调入结构倒挂</b><br><span style="font-size:11.5px;color:#5D8AB0">其他资金调入 ÷ (基金预算调入 + 国资预算调入)</span></td>
+          <td style="font-size:12px">&gt;1.0 🟡 ｜ &gt;2.0 🔴</td>
+          <td style="font-size:12.5px">江苏省级2024：80.01 ÷ (12.23+24.51) = 2.18 倍</td>
+          <td style="text-align:center;font-size:15px">🔴</td>
+          <td style="text-align:center;font-size:12px;color:#c0392b;font-weight:600">✅ 命中</td>
+        </tr>
+        <tr>
+          <td style="text-align:center"><b>O6</b></td>
+          <td><b>其他调入资金规模（市级）</b><br><span style="font-size:11.5px;color:#5D8AB0">从其他资金调入（市本级或全市口径）</span></td>
+          <td style="font-size:12px">&gt;50亿 🟡 ｜ &gt;100亿 🔴</td>
+          <td style="font-size:12.5px">宁波：61.86亿(2023) → 69.16亿(2024) → 70.14亿(2025) ｜ 杭州2023：69.81亿 ｜ 广州2023/2024：1.3/0.6亿</td>
+          <td style="text-align:center;font-size:15px">🟡</td>
+          <td style="text-align:center;font-size:12px;color:#e6a817;font-weight:600">✅ 命中（宁波/杭州）</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+    <div class="acct-warn" style="margin-top:14px">
+      <b>⚠️ 关于"权责发生制列支"的数据可得性</b><br>
+      <b>安徽省级连续三年在决算报告中单列"权责发生制列支情况"</b>（2024年10.8亿、2025年21.2亿）；
+      <b>江苏省级</b>在2024年报告"（七）其他情况"中披露"国库集中支付用款计划结余165.35亿"。
+      <b>但多数省份未披露</b>——此类字段需逐年逐省翻查报告正文，目前只有安徽可形成连续序列。
+    </div>
+    <div class="section-title" style="margin-top:22px"><span class="bar"></span>观测点说明（含义 / 依据 / 数据源）</div>
+      <div style="margin:10px 0;padding:10px 14px;border-left:4px solid #c0392b;background:#f8fbfe;border-radius:6px">
+        <b>O1 权责发生制列支突增</b><br>
+        <span style="font-size:12.5px">年末「应列支未付」规模一年翻倍。权责发生制列支本身合法（省级以上国库集中支付结余），但突增意味着当年支出确认中「非现金部分」快速扩张——决算支出增速会明显高于实际付款增速。</span><br>
+        <span style="font-size:11.5px;color:#5D8AB0">依据：《财政总会计制度》8041（四）集中支付结余结存；财预〔2015〕81号（历史）</span><br>
+        <span style="font-size:11.5px;color:#5D8AB0">数据源：安徽2024/2025年全省决算报告「权责发生制列支情况」（列支范围=省级以上国库集中支付结余，内容为部分预算单位基建项目资金）</span>
+      </div>
+      <div style="margin:10px 0;padding:10px 14px;border-left:4px solid #2e7d32;background:#f8fbfe;border-radius:6px">
+        <b>O2 列支挂账率</b><br>
+        <span style="font-size:12.5px">列支挂账占支出比尚低（1.97%）。但须逐年盯住——这是「决算支出 vs 实际付款」背离的直接刻度。</span><br>
+        <span style="font-size:11.5px;color:#5D8AB0">依据：《财政总会计制度》8041（四）；第五十四条项目14「其中：权责发生制列支」</span><br>
+        <span style="font-size:11.5px;color:#5D8AB0">数据源：安徽2025年报告 + 省本级支出决算表</span>
+      </div>
+      <div style="margin:10px 0;padding:10px 14px;border-left:4px solid #c0392b;background:#f8fbfe;border-radius:6px">
+        <b>O3 无对手方调入突增</b><br>
+        <span style="font-size:12.5px">「从其他资金调入」无跨预算对手方（既非基金预算调入、也非国资预算调入）。2024年一年翻倍多，并在2025年维持高位——是「调入虚增」最需核查的窗口。</span><br>
+        <span style="font-size:11.5px;color:#5D8AB0">依据：《财政总会计制度》6021调入预算资金（«其他渠道»）；财预〔2018〕35号</span><br>
+        <span style="font-size:11.5px;color:#5D8AB0">数据源：江苏2023/2024/2025年省级一般公共预算收入决算表（表三）：调入资金明细拆分为「从政府性基金预算调入」「从国有资本经营预算调入」「从其他资金调入」</span>
+      </div>
+      <div style="margin:10px 0;padding:10px 14px;border-left:4px solid #c0392b;background:#f8fbfe;border-radius:6px">
+        <b>O4 无对手方调入占比</b><br>
+        <span style="font-size:12.5px">调入资金里超过2/3没有跨预算对手方。占比从40%跳到68%后维持——调入结构发生实质性变化，需追问资金来源性质（合法「其他渠道」vs 错记的本级存量资金）。</span><br>
+        <span style="font-size:11.5px;color:#5D8AB0">依据：《财政总会计制度》6021/7021；财预〔2018〕35号（调入来源限制）</span><br>
+        <span style="font-size:11.5px;color:#5D8AB0">数据源：江苏2023/2024/2025年省级一般公共预算收入决算表（表三）：调入资金明细拆分为「从政府性基金预算调入」「从国有资本经营预算调入」「从其他资金调入」</span>
+      </div>
+      <div style="margin:10px 0;padding:10px 14px;border-left:4px solid #c0392b;background:#f8fbfe;border-radius:6px">
+        <b>O5 调入结构倒挂</b><br>
+        <span style="font-size:12.5px">制度设计里「调入」的对手方应是其他**预算**；当「其他资金调入」反超跨预算调入2倍以上，说明调入的主导来源已不是预算间调剂，需核查是否为存量资金/往来款项的科目转换。</span><br>
+        <span style="font-size:11.5px;color:#5D8AB0">依据：《财政总会计制度》6021/7021；财预〔2016〕155号第七条</span><br>
+        <span style="font-size:11.5px;color:#5D8AB0">数据源：江苏2023/2024/2025年省级一般公共预算收入决算表（表三）：调入资金明细拆分为「从政府性基金预算调入」「从国有资本经营预算调入」「从其他资金调入」</span>
+      </div>
+      <div style="margin:10px 0;padding:10px 14px;border-left:4px solid #e6a817;background:#f8fbfe;border-radius:6px">
+        <b>O6 其他调入资金规模（市级）</b><br>
+        <span style="font-size:12.5px">宁波、杭州「从其他资金调入」常年60-70亿量级且逐年上升；而广州仅0.6-1.3亿。**同为大城市，量级差50倍以上**——这个差异本身值得追问（口径不同？还是资金运作方式不同？）。</span><br>
+        <span style="font-size:11.5px;color:#5D8AB0">依据：《财政总会计制度》6021；各地一般公共预算决算表</span><br>
+        <span style="font-size:11.5px;color:#5D8AB0">数据源：宁波/杭州/广州 2023-2025 决算表</span>
+      </div>
+    <div class="acct-note">
+      <b>最需要盯的一条</b>：<b>江苏省级"从其他资金调入"2024年同比 +120.4%（36.30→80.01亿），占比从40.0%跳到68.5%，并反超跨预算调入2.18倍</b>。
+      调入结构在一年内发生实质变化，是"收入端虚增"最典型的形态——**建议调阅该年度预算调整方案与调入批复文件核对资金来源**。
+    </div>
+
     <div class="section-title" style="margin-top:26px"><span class="bar"></span>⚠️ 一处制度模糊点（待考）</div>
     <div class="acct-warn">
       <b>收回"当年拨出的款项"时存在并行规定</b>——第四十四条（三）：<br>
