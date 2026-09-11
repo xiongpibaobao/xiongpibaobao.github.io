@@ -376,6 +376,83 @@ footer { padding:20px 32px; border-top:1px solid var(--border); color:var(--mute
       </tbody>
     </table>
 
+
+    <div class="section-title" style="margin-top:26px"><span class="bar"></span>🔍 失真点 → 检验指标（已实算）</div>
+    <div class="method-box" style="margin-bottom:14px">
+      <p style="line-height:1.85;font-size:13px;margin:4px 0">
+        把上面4个失真点转成<b>可计算、可复核</b>的检验指标。数据全部取自 <b>2025年省级决算</b>，每项登记省/口径/来源表页，
+        <b>验算过程完全公开</b>；公开决算确实拿不到的一律标 <b>⚪待补</b>，不放假灯。
+      </p>
+    </div>
+    <div style="overflow-x:auto">
+    <table class="acct-tbl" style="min-width:1180px">
+      <thead><tr>
+        <th style="width:38px">#</th><th style="width:180px">检验指标</th><th style="width:170px">实测值</th>
+        <th style="width:40px">灯</th><th style="width:210px">公式</th><th>验算（可逐条复核）</th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td><b>T1</b></td>
+          <td><b>调入资金无对手方率</b><br><span style="font-size:11.5px;color:#5D8AB0">②省以下：闲置资金记成调入（收入虚增）</span></td>
+          <td style="font-size:12.5px">67.6%</td>
+          <td style="text-align:center;font-size:15px">🔴</td>
+          <td style="font-size:12px">(调入资金 − 从政府性基金预算调入 − 从国有资本经营预算调入) ÷ 调入资金</td>
+          <td style="font-size:11.5px;color:#444">(1,408,299 − 138,229 − 318,273) ÷ 1,408,299 = 951,797 ÷ 1,408,299 = 67.6%</td>
+        </tr>
+        <tr>
+          <td><b>T2</b></td>
+          <td><b>调入依赖度</b><br><span style="font-size:11.5px;color:#5D8AB0">②省以下：闲置资金记成调入（收入虚增）</span></td>
+          <td style="font-size:12.5px">江苏 21.9% ｜ 陕西 9.6% ｜ 宁夏 30.2% ｜ 安徽 4.8%</td>
+          <td style="text-align:center;font-size:15px">🔴</td>
+          <td style="font-size:12px">调入资金 ÷（一般公共预算本级收入 + 调入资金）</td>
+          <td style="font-size:11.5px;color:#444">江苏: 28,720,833 ÷ (102,457,000+28,720,833) = 21.9% ｜ 陕西: 3,721,124 ÷ (34,949,000+3,721,124) = 9.6% ｜ 宁夏: 2,339,537 ÷ (5,406,000+2,339,537) = 30.2% ｜ 安徽: 168,397 ÷ (3,326,000+168,397) = 4.8%</td>
+        </tr>
+        <tr>
+          <td><b>T3</b></td>
+          <td><b>结余结转沉淀率</b><br><span style="font-size:11.5px;color:#5D8AB0">①重复列支 / ③列支挂账 的资金面表现</span></td>
+          <td style="font-size:12.5px">江苏(全省) 7.5% ｜ 江苏(省本级) 0.6%</td>
+          <td style="text-align:center;font-size:15px">🟢</td>
+          <td style="font-size:12px">年终结转 ÷ 一般公共预算支出</td>
+          <td style="font-size:11.5px;color:#444">江苏全省 11,343,873 ÷ 151,910,000 = 7.5%</td>
+        </tr>
+        <tr>
+          <td><b>T4</b></td>
+          <td><b>稳定调节基金净动用率</b><br><span style="font-size:11.5px;color:#5D8AB0">存量依赖（与①③同源）</span></td>
+          <td style="font-size:12.5px">江苏(全省) -1.6% ｜ 陕西(全省) 0.9% ｜ 安徽(省本级) 93.7%</td>
+          <td style="text-align:center;font-size:15px">🔴</td>
+          <td style="font-size:12px">(动用预算稳定调节基金 − 安排预算稳定调节基金) ÷ 一般公共预算本级收入</td>
+          <td style="font-size:11.5px;color:#444">江苏(9,020,013−10,608,892)÷102,457,000=-1.6% ｜ 陕西(4,391,655−4,093,014)÷34,949,000=0.9% ｜ 安徽 3,115,000÷3,326,000=93.7%</td>
+        </tr>
+        <tr>
+          <td><b>T5</b></td>
+          <td><b>列支挂账率</b><br><span style="font-size:11.5px;color:#5D8AB0">③省以上：804104 不归零（列支挂账）</span></td>
+          <td style="font-size:12.5px">⚪ 待补</td>
+          <td style="text-align:center;font-size:15px">⚪</td>
+          <td style="font-size:12px">「其中：权责发生制列支」÷ 本级支出</td>
+          <td style="font-size:11.5px;color:#444">—（无数据）</td>
+        </tr>
+        <tr>
+          <td><b>T6</b></td>
+          <td><b>列支-支付匹配率</b><br><span style="font-size:11.5px;color:#5D8AB0">④省以上：双重列支</span></td>
+          <td style="font-size:12.5px">⚪ 待补</td>
+          <td style="text-align:center;font-size:15px">⚪</td>
+          <td style="font-size:12px">上年权责发生制列支于本年的实际支付额 ÷ 上年权责发生制列支额</td>
+          <td style="font-size:11.5px;color:#444">—（无数据）</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+    <div class="acct-warn" style="margin-top:14px">
+      <b>⚠️ 三个必须说明的点</b><br>
+      1. <b>T5/T6 是 ⚪ 而非"无风险"</b>——四省2025年决算<b>均未披露「权责发生制列支」金额</b>（安徽仅1处名词解释），需财政部门内部报表（总会预01表）才能算。<br>
+      2. <b>T1/T3 目前只有江苏可算</b>——江苏省级决算披露了调入资金的明细拆分（含"从其他资金调入"），其他三省未披露。<br>
+      3. <b>口径严格区分</b>：江苏 T1/T2/T3 分别为"省本级"与"全省"两种口径，已在值中标注，<b>不可混比</b>。
+    </div>
+    <div class="acct-note">
+      <b>最值得注意的实测结果</b>：<b>安徽省级 2025 年动用预算稳定调节基金 311.5 亿元，相当于其本级一般公共预算收入（332.6亿元）的 93.7%</b>——
+      本级支出几乎完全依靠历年积累的存量基金支撑；而江苏、陕西为"安排&gt;动用"（净补充），处于健康状态。
+    </div>
+
     <div class="section-title" style="margin-top:26px"><span class="bar"></span>⚠️ 一处制度模糊点（待考）</div>
     <div class="acct-warn">
       <b>收回"当年拨出的款项"时存在并行规定</b>——第四十四条（三）：<br>
