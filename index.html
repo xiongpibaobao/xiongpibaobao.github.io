@@ -938,11 +938,15 @@ document.querySelectorAll('.tab-btn').forEach(btn=>{
       }
       if (tab === 'province') { /* 省级表在 init 时已渲染 */ }
     } else if (LEVEL2.includes(tab)) {
-      // 二级选项卡：只切换 city 内面板
+      // 二级选项卡：切换 city 内面板
       LEVEL2.forEach(id => document.getElementById(id).classList.remove('active'));
       document.getElementById(tab).classList.add('active');
       document.querySelectorAll('.tab-btn[data-tab]').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
+      // ⚠️修复：二级面板(overview/metrics/risks/verify)物理嵌套在 #city 内，
+      // 必须同时激活 #city 面板，否则从"指标系统"进入二级页会整页空白
+      LEVEL1.forEach(id => document.getElementById(id).classList.remove('active'));
+      document.getElementById('city').classList.add('active');
       document.querySelector('.tab-btn[data-tab="city"]').classList.add('active');
       if (tab === 'overview') setTimeout(renderCharts, 50);
     }
