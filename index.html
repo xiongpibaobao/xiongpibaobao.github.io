@@ -147,10 +147,6 @@ footer { padding:20px 32px; border-top:1px solid var(--border); color:var(--mute
     <div style="overflow-x:auto; background:var(--card); border:1px solid var(--border); border-radius:10px; margin-bottom:20px;">
       <table id="provIndTable"><thead></thead><tbody></tbody></table>
     </div>
-    <div class="section-title"><span class="bar"></span>省级决算核心指标矩阵（2024，万元）</div>
-    <div style="overflow-x:auto; background:var(--card); border:1px solid var(--border); border-radius:10px; margin-bottom:20px;">
-      <table id="provFinTable"><thead></thead><tbody></tbody></table>
-    </div>
     <div class="section-title" style="background:linear-gradient(90deg,#fff5f5,#fff);border-left:4px solid #c0392b;padding-left:12px;border-radius:6px">
       <span class="bar"></span>📈 省级趋势预警：决算科目大变动（先看这里）
     </div>
@@ -1130,41 +1126,6 @@ function renderProvince(){
     if (hasAny) ib += row;
   });
   document.querySelector('#provIndTable tbody').innerHTML = ib || '<tr><td colspan="6" style="text-align:center;color:var(--muted)">暂无数据</td></tr>';
-  // 省级决算核心指标矩阵（横轴=省份，纵轴=指标，2024值+同比）
-  const FIN_ORDER = ['税收收入','非税收入','增值税','企业所得税','个人所得税','房产税','契税','土地增值税','教育支出','卫生健康支出','社保就业支出','债务付息支出'];
-  const finProvinces = provList.filter(pr => p[pr] && p[pr].final_inds && p[pr].final_inds['2024']);
-  if (finProvinces.length === 0) {
-    document.getElementById('provFinTable').innerHTML = '<tr><td style="color:var(--muted);text-align:center">暂无省级决算指标</td></tr>';
-    return;
-  }
-  let fh = '<tr><th>指标（万元）</th>';
-  finProvinces.forEach(pr => fh += `<th>${pr} 2024</th><th>同比%</th>`);
-  fh += '</tr>';
-  document.querySelector('#provFinTable thead').innerHTML = fh;
-  let fb = '';
-  FIN_ORDER.forEach(name => {
-    let row = `<tr><td style="color:var(--muted);font-weight:600">${name}</td>`;
-    let hasAny = false;
-    finProvinces.forEach(pr => {
-      const it = p[pr].final_inds['2024'][name];
-      if (it && it['2024'] !== null && it['2024'] !== undefined) {
-        const v24 = it['2024'], v23 = it['2023'];
-        const chg = (v23 && v23 !== 0) ? (((v24 - v23) / Math.abs(v23)) * 100).toFixed(1) + '%' : '—';
-        let cls = '';
-        if (chg !== '—') {
-          const c = parseFloat(chg);
-          cls = Math.abs(c) > 30 ? 'light-red' : Math.abs(c) > 5 ? 'light-yellow' : 'light-green';
-        }
-        row += `<td>${(v24/10000).toFixed(1)}亿</td><td class="${cls}">${chg}</td>`;
-        hasAny = true;
-      } else {
-        row += '<td>—</td><td>—</td>';
-      }
-    });
-    row += '</tr>';
-    if (hasAny) fb += row;
-  });
-  document.querySelector('#provFinTable tbody').innerHTML = fb || '<tr><td colspan="9" style="text-align:center;color:var(--muted)">暂无数据</td></tr>';
   renderProvM110(); renderProvRisk(); renderProvVerify();
 }
 
