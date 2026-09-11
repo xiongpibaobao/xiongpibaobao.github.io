@@ -454,6 +454,45 @@ footer { padding:20px 32px; border-top:1px solid var(--border); color:var(--mute
     </div>
 
 
+    <div class="method-box" style="margin-top:18px;border-left:4px solid #c0392b">
+      <div style="font-weight:700;font-size:14px;color:#0B3D66;margin-bottom:8px">
+        📌 风险类别识别说明：<b>调入资金科目错记</b>（"一女二嫁"·收入端 · 对应 T1／T2）
+      </div>
+      <table class="acct-tbl" style="margin-top:8px">
+        <tbody>
+          <tr><td style="width:132px"><b>风险名称</b></td><td>调入资金科目错记 —— 把"收回"记成"调入"</td></tr>
+          <tr><td><b>风险表现</b></td><td>从<b>预算单位账户（含实有资金账户）收回的存量资金</b>，被计入「<b>调入预算资金（6021）</b>」而非「<b>待处理收入（6051）</b>」</td></tr>
+          <tr><td><b>识别标准</b></td><td><b>看这笔钱"原来有没有财政预算科目"</b>：
+            <table style="width:100%;margin-top:6px;border-collapse:collapse;font-size:12.5px">
+              <tr style="background:#f4f8fc"><th style="padding:6px;text-align:left;width:120px">情形</th><th style="padding:6px;text-align:left">科目</th><th style="padding:6px;text-align:left;width:170px">是否确认收入</th></tr>
+              <tr><td style="padding:6px">财政拨给部门、没花完、现在收回<br><span style="color:#5D8AB0">（有"原预算科目"）</span></td>
+                  <td style="padding:6px"><b>6051 待处理收入</b></td><td style="padding:6px;color:#c0392b"><b>❌ 不确认收入</b></td></tr>
+              <tr><td style="padding:6px">从其他类型预算（基金/国资）或其他渠道调入<br><span style="color:#5D8AB0">（无"原预算科目"）</span></td>
+                  <td style="padding:6px"><b>6021 调入预算资金</b></td><td style="padding:6px;color:#2e7d32"><b>✅ 确认收入</b></td></tr>
+            </table>
+          </td></tr>
+          <tr><td><b>本页触发条件</b></td><td>T1 无对手方率 <b>&gt;50%🔴</b> ／ T2 调入依赖度 <b>&gt;20%🔴</b>（并可参照后续 O3 同比&gt;100%、O4 占比&gt;50%、O5 结构倒挂&gt;2.0）</td></tr>
+          <tr><td><b>制度依据</b></td><td>
+            ① <b>财预〔2015〕15号</b>第（四）条：<i>"财政收回转移支付结转结余资金、部门预算结转结余资金时，借记'国库存款'科目，<b>贷记'暂存款'科目</b>"</i>（并"作为权责发生制事项单独核算"，安排使用时"按原结转预算科目做冲销处理"）<br>
+            ② <b>财预〔2015〕81号</b>：总预算会计设"暂存款——收回存量资金"明细（已废止，转为新科目）<br>
+            ③ <b>财库〔2022〕41号</b>第二十九条：<i>"<b>待处理收入是指本级政府财政收回的部门预算结转结余资金和转移支付结转资金</b>"</i>；<i>"调入预算资金是指政府财政为平衡某类预算收支，从<b>其他类型预算资金及其他渠道</b>调入的资金"</i>
+          </td></tr>
+          <tr><td><b>错记的三个后果</b></td><td>
+            ① <b>虚增预算收入</b>——调入资金进「收入合计」，待处理收入不进（第五十四条收入构成清单无此项）<br>
+            ② <b>绕开"原科目冲销"闸门 → 重复列支风险</b>——6051（三）要求调整科目时先"按原结转预算科目贷记一般公共预算支出"冲销原支出，走调入则可直接列支、原支出不冲回<br>
+            ③ <b>改变年终去向</b>——6051 → 停在「待处理结存（804109）」；6021 → 转为<b>可支配的结转结余（8001）</b>
+          </td></tr>
+          <tr><td><b>数据可得性</b></td><td>⚠️ <b>公开决算只披露"调入资金"汇总数与三类拆分，不披露"其他资金"的最终来源</b> → <b>只能识别异常规模，无法定性资金来源</b>。定性需"其他资金"明细账或预算调整说明（见下方个案核验）</td></tr>
+        </tbody>
+      </table>
+      <div style="margin-top:10px;padding:9px 12px;background:#fdf6e3;border-radius:6px;font-size:12.5px;line-height:1.7">
+        <b>⚠️ 一个必须澄清的常见误解</b>：有人主张"财政收回资金是要重新安排支出的，相当于新增财力，故列调入资金"。
+        <b>此说不成立</b>：① 财预〔2015〕15号已把收回资金定位为"<b>作为权责发生制事项单独核算</b>"、贷"暂存款"，属"<b>已有资金的收回</b>"而非新增；
+        ② 制度给 6051 配了完整的"按原科目／调整科目使用"路径，<b>使用完全不受影响</b>，无需转成调入资金；
+        ③ 财政部两款文件（15号、81号）用词一致为"暂存款"，<b>从无"收回存量资金记调入资金"之处理</b>。
+      </div>
+    </div>
+
     <div class="section-title" style="margin-top:30px"><span class="bar"></span>🚨 异常观测点（权责发生制列支 + 其他调入资金）</div>
     <div class="method-box" style="margin-bottom:14px">
       <p style="line-height:1.85;font-size:13px;margin:4px 0">
