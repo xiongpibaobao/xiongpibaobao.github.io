@@ -1040,25 +1040,51 @@ function badgeHtml(l){if(l==='🔴')return '<span class="badge badge-red">🔴 �
 function fmtVal(v,unit){if(v===null||v===undefined)return '—';if(unit==='%')return (v*100).toFixed(1)+'%';if(unit==='元/人')return Math.round(v).toLocaleString();if(unit==='万元')return (v/10000).toFixed(1)+'亿';return v;}
 
 // ============ Tab ============
-const LEVEL1 = ['indicator', 'province', 'city', 'accounting', 'national'];
-// 每个一级标签下的二级标签组
-const LEVEL2_OF = {
+// ⚠️⚠️ 兼容性铁律：微信内置浏览器/老 Safari 不支持 ES2019 的 .flat() 与
+//    Object.entries/Object.values —— 一旦用了，整段 <script> 直接抛错，
+//    表现为【所有标签点了没反应】（内容还在，但切换失效）✗ 实测踩过。
+//    → 本段刻意只用 ES5 + ES6 语法。
+var LEVEL1 = ['indicator', 'province', 'city', 'accounting', 'national'];
+var LEVEL2_OF = {
   province: ['prov_deep', 'prov_all'],
   city:     ['overview', 'metrics', 'risks', 'verify', 'city_all'],
 };
-const ALL_L2 = Object.values(LEVEL2_OF).flat();
-const PARENT_OF = {}; for (const [k, v] of Object.entries(LEVEL2_OF)) v.forEach(x => PARENT_OF[x] = k);
+var ALL_L2 = [];
+var PARENT_OF = {};
+(function(){
+  for (var k in LEVEL2_OF) {
+    if (!LEVEL2_OF.hasOwnProperty(k)) continue;
+    var arr = LEVEL2_OF[k];
+    for (var i = 0; i < arr.length; i++) { ALL_L2.push(arr[i]); PARENT_OF[arr[i]] = k; }
+  }
+})();
 
 function activateL2(parent, child){
-  (LEVEL2_OF[parent] || []).forEach(id => { const e = document.getElementById(id); if (e) e.classList.remove('active'); });
-  const c = document.getElementById(child); if (c) c.classList.add('active');
-  document.querySelectorAll('.tab-btn[data-tab]').forEach(b => b.classList.remove('active'));
-  const cb = document.querySelector(`.tab-btn[data-tab="${child}"]`); if (cb) cb.classList.add('active');
-  const pb = document.querySelector(`.tab-btn[data-tab="${parent}"]`); if (pb) pb.classList.add('active');
+  var arr = LEVEL2_OF[parent] || [];
+  for (var i = 0; i < arr.length; i++) { var e = document.getElementById(arr[i]); if (e) e.classList.remove('active'); }
+  var c = document.getElementById(child); if (c) c.classList.add('active');
+  document.querySelectorAll('.tab-btn[data-tab]').forEach(function(b){ b.classList.remove('active'); });
+  var cb = document.querySelector('.tab-btn[data-tab="' + child + '"]'); if (cb) cb.classList.add('active');
+  var pb = document.querySelector('.tab-btn[data-tab="' + parent + '"]'); if (pb) pb.classList.add('active');
   if (child === 'overview') setTimeout(renderCharts, 50);
   if (child === 'prov_all') renderRegional('prov_an');
   if (child === 'city_all') renderRegional('city_an');
 }
+
+// 全局错误提示：万一还有兼容问题，页面顶部直接显示，不再"点了没反应"难以排查
+window.onerror = function(msg, src, line){
+  try{
+    var d = document.getElementById('__jserr');
+    if (!d) {
+      d = document.createElement('div');
+      d.id = '__jserr';
+      d.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#8b0000;color:#fff;padding:8px 14px;font-size:13px;';
+      document.body.appendChild(d);
+    }
+    d.textContent = '⚠️ 页面脚本错误（可能影响标签切换）：' + msg + ' @line ' + line + ' —— 请截图反馈';
+  }catch(e){}
+  return false;
+};
 
 document.querySelectorAll('.tab-btn').forEach(btn=>{
   btn.addEventListener('click',()=>{
@@ -1370,8 +1396,10 @@ function renderNationalTable(){
     const cells=['2023','2024','2025'].map(y=>{
       const c=(r.matrix||{})[y];
       if(!c) return '<td style="color:var(--muted)">⚪</td>';
-      const tot=Object.values(c).reduce((a,b)=>a+b,0);
-      return `<td title="${Object.entries(c).map(([k,v])=>k+':'+v).join(' / ')}">${fmtNum(tot,0)}</td>`;
+      // 兼容老浏览器：不用 Object.values/entries（ES2017）
+      var tot=0, parts=[];
+      for (var kk in c) { if (c.hasOwnProperty(kk)) { tot += c[kk]; parts.push(kk + ':' + c[kk]); } }
+      return '<td title="' + parts.join(' / ') + '">' + fmtNum(tot,0) + '</td>';
     }).join('');
     h+=`<tr>
       <td><b>${r.name}</b></td>
