@@ -98,7 +98,6 @@ footer { padding:20px 32px; border-top:1px solid var(--border); color:var(--mute
     <button class="tab-btn" data-tab="province">🗺️ 省级情况</button>
     <button class="tab-btn" data-tab="city">🏙️ 市级情况</button>
     <button class="tab-btn" data-tab="accounting">📒 会计核验</button>
-    <button class="tab-btn" data-tab="national">🇨🇳 全国采集</button>
   </div>
 
   <!-- ======== 一级：指标系统 ======== -->
@@ -135,12 +134,38 @@ footer { padding:20px 32px; border-top:1px solid var(--border); color:var(--mute
     <div class="method-box" style="margin-top:16px;">
       <h3>🗺️ 覆盖范围（2026-09 现状）</h3>
       <ul>
-        <li><b>全国采集</b>（见「🇨🇳 全国采集」标签）：<b>47 个地区 × 2023–2025 × 双口径 × 四本预算</b>，1,606 个官方文件、<b>179,875 条</b>结构化事实 —— 31 个省级行政区（省/自治区/直辖市）+ 16 个城市（计划单列市/副省级/GDP前10）</li>
+        <li><b>全国采集</b>（见本页下方「📊 数据来源与采集覆盖」）：<b>47 个地区 × 2023–2025 × 双口径 × 四本预算</b>，1,606 个官方文件、<b>179,875 条</b>结构化事实 —— 31 个省级行政区（省/自治区/直辖市）+ 16 个城市（计划单列市/副省级/GDP前10）</li>
         <li><b>深度分析（市级）</b>：苏州/杭州/宁波/广州/深圳 × 2023-2024 决算 + 统计公报 + 第2层外部数据（70城房价/土地出让/工业利润/存款/用电量）</li>
         <li><b>深度分析（省级）</b>：陕西/宁夏/江苏/安徽 × 2023-2024 决算（全页入库 1,239 页/843 表）+ 统计公报（4 省 60 条指标）</li>
         <li>持续扩展：各地区 FY2025 决算将随官方发布陆续补入</li>
       </ul>
     </div>
+  
+
+    <div class="section-title" style="margin-top:36px;"><span class="bar"></span>📊 数据来源与采集覆盖（全国决算采集总览）</div>
+    <p class="sub">覆盖 <b>31 个省级行政区</b> + <b>16 个城市</b>（计划单列市 / 副省级 / GDP前10），
+       2023–2025 三财年 × 双口径 × 四本预算。数据来自各级政府官网公开的决算报告与决算报表。</p>
+
+    <div id="natCards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:16px 0;"></div>
+
+    <h3 style="margin-top:20px;">三档口径严格区分</h3>
+    <div id="natScope" style="margin-bottom:18px;"></div>
+
+    <h3>覆盖矩阵（地区 × 财年）</h3>
+    <p class="sub" style="font-size:13px;">数字 = 该地区该财年入库的事实条数；「⚪」= 该财年尚未入库。</p>
+    <input id="natFilter" placeholder="🔍 筛选地区名（如 江苏 / 苏州）" oninput="renderNationalTable()"
+           style="width:100%;max-width:320px;padding:8px 12px;margin-bottom:10px;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.06);color:var(--fg);font-size:14px;">
+    <div style="overflow-x:auto;"><table class="tb" id="natTable"></table></div>
+
+    <h3 style="margin-top:22px;">解析质量</h3>
+    <div id="natQuality"></div>
+
+    <div class="note" style="margin-top:18px;">
+      <b>口径说明</b>：本页严格区分「汇总口径」（全省 / 全区 / 全市）与「本级口径」（省本级 / 区本级 / 市本级），
+      <b>不作跨口径比较</b>。各地区公开文件的科目命名差异较大，故本页只呈现<b>覆盖情况</b>与<b>数据质量</b>，
+      <b>不做跨地区金额排名或打分</b>。缺失一律标 ⚪，不以估算代替。
+    </div>
+  
   </div>
 
   <!-- ======== 一级：省级情况 ======== -->
@@ -973,31 +998,8 @@ footer { padding:20px 32px; border-top:1px solid var(--border); color:var(--mute
   
     </div>
 </div>
-  <div class="panel" id="national">
-    <h2>🇨🇳 全国决算采集总览</h2>
-    <p class="sub">覆盖 <b>31 个省级行政区</b> + <b>16 个城市</b>（计划单列市 / 副省级 / GDP前10），
-       2023–2025 三财年 × 双口径 × 四本预算。数据来自各级政府官网公开的决算报告与决算报表。</p>
+  
 
-    <div id="natCards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:16px 0;"></div>
-
-    <h3>三档口径严格区分</h3>
-    <div id="natScope" style="margin-bottom:18px;"></div>
-
-    <h3>覆盖矩阵（地区 × 财年）</h3>
-    <p class="sub" style="font-size:13px;">数字 = 该地区该财年入库的事实条数；「⚪」= 该财年尚未入库。</p>
-    <input id="natFilter" placeholder="🔍 筛选地区名（如 江苏 / 苏州）" oninput="renderNationalTable()"
-           style="width:100%;max-width:320px;padding:8px 12px;margin-bottom:10px;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.06);color:var(--fg);font-size:14px;">
-    <div style="overflow-x:auto;"><table class="tb" id="natTable"></table></div>
-
-    <h3 style="margin-top:22px;">解析质量</h3>
-    <div id="natQuality"></div>
-
-    <div class="note" style="margin-top:18px;">
-      <b>口径说明</b>：本页严格区分「汇总口径」（全省 / 全区 / 全市）与「本级口径」（省本级 / 区本级 / 市本级），
-      <b>不作跨口径比较</b>。各地区公开文件的科目命名差异较大，故本页只呈现<b>覆盖情况</b>与<b>数据质量</b>，
-      <b>不做跨地区金额排名或打分</b>。缺失一律标 ⚪，不以估算代替。
-    </div>
-  </div>
 
   
 
@@ -1044,7 +1046,7 @@ function fmtVal(v,unit){if(v===null||v===undefined)return '—';if(unit==='%')re
 //    Object.entries/Object.values —— 一旦用了，整段 <script> 直接抛错，
 //    表现为【所有标签点了没反应】（内容还在，但切换失效）✗ 实测踩过。
 //    → 本段刻意只用 ES5 + ES6 语法。
-var LEVEL1 = ['indicator', 'province', 'city', 'accounting', 'national'];
+var LEVEL1 = ['indicator', 'province', 'city', 'accounting'];
 var LEVEL2_OF = {
   province: ['prov_deep', 'prov_all'],
   city:     ['overview', 'metrics', 'risks', 'verify', 'city_all'],
@@ -1095,8 +1097,8 @@ document.querySelectorAll('.tab-btn').forEach(btn=>{
       document.querySelectorAll('.tab-btn[data-tab]').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       if (tab === 'city')     { activateL2('city', 'overview'); }
+      if (tab === 'indicator') { renderNational(); }
       if (tab === 'province') { activateL2('province', 'prov_deep'); }
-      if (tab === 'national') { renderNational(); }
     } else if (ALL_L2.includes(tab)) {
       const parent = PARENT_OF[tab];
       LEVEL1.forEach(id => document.getElementById(id).classList.remove('active'));
@@ -1504,6 +1506,7 @@ function init(){
   const sel=document.getElementById('riskCity');sel.innerHTML='';
   DATA.cities.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;sel.appendChild(o);});
   renderCityCards();renderMetricTable();renderRiskTable();renderVerifyTable();renderProvince();renderCharts();
+  if (typeof renderNational === 'function') renderNational();
 }
 init();
 </script>
