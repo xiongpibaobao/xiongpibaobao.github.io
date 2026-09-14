@@ -99,8 +99,6 @@ footer { padding:20px 32px; border-top:1px solid var(--border); color:var(--mute
     <button class="tab-btn" data-tab="city">🏙️ 市级情况</button>
     <button class="tab-btn" data-tab="accounting">📒 会计核验</button>
     <button class="tab-btn" data-tab="national">🇨🇳 全国采集</button>
-    <button class="tab-btn" data-tab="prov_an">🗺️ 分省分析</button>
-    <button class="tab-btn" data-tab="city_an">🏙️ 分城市分析</button>
   </div>
 
   <!-- ======== 一级：指标系统 ======== -->
@@ -147,6 +145,11 @@ footer { padding:20px 32px; border-top:1px solid var(--border); color:var(--mute
 
   <!-- ======== 一级：省级情况 ======== -->
   <div class="panel" id="province">
+    <div class="tabs" style="margin-bottom:16px;">
+      <button class="tab-btn active" data-tab="prov_deep">📊 深度分析（陕西/宁夏/江苏/安徽）</button>
+      <button class="tab-btn" data-tab="prov_all">🌐 全部分省（31 个）</button>
+    </div>
+    <div class="panel active" id="prov_deep">
     <div class="section-title"><span class="bar"></span>省级统计公报关键指标（2024）</div>
     <div style="overflow-x:auto; background:var(--card); border:1px solid var(--border); border-radius:10px; margin-bottom:20px;">
       <table id="provIndTable"><thead></thead><tbody></tbody></table>
@@ -218,7 +221,37 @@ footer { padding:20px 32px; border-top:1px solid var(--border); color:var(--mute
     <div style="overflow-x:auto; background:var(--card); border:1px solid var(--border); border-radius:10px;">
       <table id="provVerifyTable"><thead><tr><th>省份</th><th>验证项</th><th>结果</th><th>偏差</th><th>结论</th><th>灯</th></tr></thead><tbody></tbody></table>
     </div>
-  </div>
+      </div>
+
+    <div class="panel" id="prov_all">
+
+    <div class="section-title" style="margin-top:28px;"><span class="bar"></span>🌐 全部 31 个省级行政区 · 指标与风险</div>
+    <p class="sub">省 / 自治区 / 直辖市 × 2023–2025 × 双口径 × 四本预算。指标由决算四本账 + 官方统计公报计算。</p>
+    <div id="prov_an_cards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin:16px 0;"></div>
+
+    <h3>关键指标</h3>
+    <p class="sub" style="font-size:13px;">口径严格区分：<b>汇总口径</b>（全省/全区/全市）与 <b>本级口径</b>（省本级/区本级/市本级）分列，
+        <b>不作跨口径比较</b>。悬停「公式」列可见计算方式。⚪ = 该科目在原文件中取不到（不推算）。</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
+      <select id="prov_an_year" onchange="renderRegional('prov_an')" style="padding:7px 12px;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.06);color:var(--fg);">
+        <option value="2023">2023 年</option><option value="2024">2024 年</option><option value="2025" selected>2025 年</option>
+      </select>
+      <select id="prov_an_scope" onchange="renderRegional('prov_an')" style="padding:7px 12px;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.06);color:var(--fg);">
+        <option value="agg">汇总口径（全省/全区/全市）</option>
+        <option value="loc">本级口径（省本级/区本级/市本级）</option>
+      </select>
+      <input id="prov_an_q" placeholder="🔍 筛选地区名" oninput="renderRegional('prov_an')"
+             style="padding:7px 12px;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.06);color:var(--fg);">
+    </div>
+    <div style="overflow-x:auto;"><table class="tb" id="prov_an_table"></table></div>
+
+    <h3 style="margin-top:24px;">同比风险识别（红绿灯）</h3>
+    <p class="sub" style="font-size:13px;">阈值：税收/收入/支出 同比 ≥+30% 或 ≤−20% → 🔴；非税/基金/土地 ≥+50% 或 ≤−30% → 🔴。
+       ⚪「数据需核」= 同比超出合理区间，疑原文件取数有误，<b>不计入红黄绿</b>。</p>
+    <div id="prov_an_risk"></div>
+  
+    </div>
+</div>
 
 
   <!-- ======== 一级：会计核验 ======== -->
@@ -815,9 +848,10 @@ footer { padding:20px 32px; border-top:1px solid var(--border); color:var(--mute
       <button class="tab-btn" data-tab="metrics">📐 110 指标</button>
       <button class="tab-btn" data-tab="risks">🚦 风险识别</button>
       <button class="tab-btn" data-tab="verify">🔗 外部验证</button>
+      <button class="tab-btn" data-tab="city_all">🌐 全部分城市（16 个）</button>
     </div>
 
-  <div class="panel active" id="overview" style="display:block;">
+  <div class="panel active" id="overview">
     <div class="section-title"><span class="bar"></span>五城市财政风险异常率总览（市本级口径）</div>
     <div class="overview-grid" id="cityCards"></div>
     <div class="section-title" style="margin-top:32px;"><span class="bar"></span>异常率对比 & 风险构成</div>
@@ -908,6 +942,36 @@ footer { padding:20px 32px; border-top:1px solid var(--border); color:var(--mute
       <table class="verify-table" id="verifyTable"><thead></thead><tbody></tbody></table>
     </div>
   </div>
+    </div>
+
+    <div class="panel" id="city_all">
+
+    <div class="section-title" style="margin-top:28px;"><span class="bar"></span>🌐 全部 16 个城市 · 指标与风险</div>
+    <p class="sub">计划单列市 / 副省级 / GDP前10城市 × 2023–2025 × 双口径 × 四本预算。</p>
+    <div id="city_an_cards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin:16px 0;"></div>
+
+    <h3>关键指标</h3>
+    <p class="sub" style="font-size:13px;">口径严格区分：<b>汇总口径</b>（全省/全区/全市）与 <b>本级口径</b>（省本级/区本级/市本级）分列，
+        <b>不作跨口径比较</b>。悬停「公式」列可见计算方式。⚪ = 该科目在原文件中取不到（不推算）。</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
+      <select id="city_an_year" onchange="renderRegional('city_an')" style="padding:7px 12px;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.06);color:var(--fg);">
+        <option value="2023">2023 年</option><option value="2024">2024 年</option><option value="2025" selected>2025 年</option>
+      </select>
+      <select id="city_an_scope" onchange="renderRegional('city_an')" style="padding:7px 12px;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.06);color:var(--fg);">
+        <option value="agg">汇总口径（全省/全区/全市）</option>
+        <option value="loc">本级口径（省本级/区本级/市本级）</option>
+      </select>
+      <input id="city_an_q" placeholder="🔍 筛选地区名" oninput="renderRegional('city_an')"
+             style="padding:7px 12px;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.06);color:var(--fg);">
+    </div>
+    <div style="overflow-x:auto;"><table class="tb" id="city_an_table"></table></div>
+
+    <h3 style="margin-top:24px;">同比风险识别（红绿灯）</h3>
+    <p class="sub" style="font-size:13px;">阈值：税收/收入/支出 同比 ≥+30% 或 ≤−20% → 🔴；非税/基金/土地 ≥+50% 或 ≤−30% → 🔴。
+       ⚪「数据需核」= 同比超出合理区间，疑原文件取数有误，<b>不计入红黄绿</b>。</p>
+    <div id="city_an_risk"></div>
+  
+    </div>
 </div>
   <div class="panel" id="national">
     <h2>🇨🇳 全国决算采集总览</h2>
@@ -935,59 +999,11 @@ footer { padding:20px 32px; border-top:1px solid var(--border); color:var(--mute
     </div>
   </div>
 
-  <div class="panel" id="prov_an">
-    <h2>🗺️ 分省分析（31 个省级行政区）</h2>
-    <p class="sub">省 / 自治区 / 直辖市 × 2023–2025 × 双口径 × 四本预算。指标由决算四本账 + 官方统计公报计算。</p>
-    <div id="prov_an_cards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin:16px 0;"></div>
+  
 
-    <h3>关键指标</h3>
-    <p class="sub" style="font-size:13px;">口径严格区分：<b>汇总口径</b>（全省/全区/全市）与 <b>本级口径</b>（省本级/区本级/市本级）分列，
-        <b>不作跨口径比较</b>。悬停「公式」列可见计算方式。⚪ = 该科目在原文件中取不到（不推算）。</p>
-    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
-      <select id="prov_an_year" onchange="renderRegional('prov_an')" style="padding:7px 12px;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.06);color:var(--fg);">
-        <option value="2023">2023 年</option><option value="2024">2024 年</option><option value="2025" selected>2025 年</option>
-      </select>
-      <select id="prov_an_scope" onchange="renderRegional('prov_an')" style="padding:7px 12px;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.06);color:var(--fg);">
-        <option value="agg">汇总口径（全省/全区/全市）</option>
-        <option value="loc">本级口径（省本级/区本级/市本级）</option>
-      </select>
-      <input id="prov_an_q" placeholder="🔍 筛选地区名" oninput="renderRegional('prov_an')"
-             style="padding:7px 12px;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.06);color:var(--fg);">
-    </div>
-    <div style="overflow-x:auto;"><table class="tb" id="prov_an_table"></table></div>
 
-    <h3 style="margin-top:24px;">同比风险识别（红绿灯）</h3>
-    <p class="sub" style="font-size:13px;">阈值：税收/收入/支出 同比 ≥+30% 或 ≤−20% → 🔴；非税/基金/土地 ≥+50% 或 ≤−30% → 🔴。
-       ⚪「数据需核」= 同比超出合理区间，疑原文件取数有误，<b>不计入红黄绿</b>。</p>
-    <div id="prov_an_risk"></div>
-  </div>
+  
 
-  <div class="panel" id="city_an">
-    <h2>🏙️ 分城市分析（17 个城市）</h2>
-    <p class="sub">计划单列市 / 副省级 / GDP前10城市 × 2023–2025 × 双口径 × 四本预算。</p>
-    <div id="city_an_cards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin:16px 0;"></div>
-
-    <h3>关键指标</h3>
-    <p class="sub" style="font-size:13px;">口径严格区分：<b>汇总口径</b>（全省/全区/全市）与 <b>本级口径</b>（省本级/区本级/市本级）分列，
-        <b>不作跨口径比较</b>。悬停「公式」列可见计算方式。⚪ = 该科目在原文件中取不到（不推算）。</p>
-    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
-      <select id="city_an_year" onchange="renderRegional('city_an')" style="padding:7px 12px;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.06);color:var(--fg);">
-        <option value="2023">2023 年</option><option value="2024">2024 年</option><option value="2025" selected>2025 年</option>
-      </select>
-      <select id="city_an_scope" onchange="renderRegional('city_an')" style="padding:7px 12px;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.06);color:var(--fg);">
-        <option value="agg">汇总口径（全省/全区/全市）</option>
-        <option value="loc">本级口径（省本级/区本级/市本级）</option>
-      </select>
-      <input id="city_an_q" placeholder="🔍 筛选地区名" oninput="renderRegional('city_an')"
-             style="padding:7px 12px;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.06);color:var(--fg);">
-    </div>
-    <div style="overflow-x:auto;"><table class="tb" id="city_an_table"></table></div>
-
-    <h3 style="margin-top:24px;">同比风险识别（红绿灯）</h3>
-    <p class="sub" style="font-size:13px;">阈值：税收/收入/支出 同比 ≥+30% 或 ≤−20% → 🔴；非税/基金/土地 ≥+50% 或 ≤−30% → 🔴。
-       ⚪「数据需核」= 同比超出合理区间，疑原文件取数有误，<b>不计入红黄绿</b>。</p>
-    <div id="city_an_risk"></div>
-  </div>
 
 <footer>
   <div><b>数据来源</b>：各地市财政局决算 / 省财政厅决算 / 统计局统计公报 / 国家统计局 / 华经产业研究院</div>
@@ -1024,41 +1040,42 @@ function badgeHtml(l){if(l==='🔴')return '<span class="badge badge-red">🔴 �
 function fmtVal(v,unit){if(v===null||v===undefined)return '—';if(unit==='%')return (v*100).toFixed(1)+'%';if(unit==='元/人')return Math.round(v).toLocaleString();if(unit==='万元')return (v/10000).toFixed(1)+'亿';return v;}
 
 // ============ Tab ============
-const LEVEL1 = ['indicator', 'province', 'city', 'accounting', 'national', 'prov_an', 'city_an'];
-const LEVEL2 = ['overview', 'metrics', 'risks', 'verify'];
+const LEVEL1 = ['indicator', 'province', 'city', 'accounting', 'national'];
+// 每个一级标签下的二级标签组
+const LEVEL2_OF = {
+  province: ['prov_deep', 'prov_all'],
+  city:     ['overview', 'metrics', 'risks', 'verify', 'city_all'],
+};
+const ALL_L2 = Object.values(LEVEL2_OF).flat();
+const PARENT_OF = {}; for (const [k, v] of Object.entries(LEVEL2_OF)) v.forEach(x => PARENT_OF[x] = k);
+
+function activateL2(parent, child){
+  (LEVEL2_OF[parent] || []).forEach(id => { const e = document.getElementById(id); if (e) e.classList.remove('active'); });
+  const c = document.getElementById(child); if (c) c.classList.add('active');
+  document.querySelectorAll('.tab-btn[data-tab]').forEach(b => b.classList.remove('active'));
+  const cb = document.querySelector(`.tab-btn[data-tab="${child}"]`); if (cb) cb.classList.add('active');
+  const pb = document.querySelector(`.tab-btn[data-tab="${parent}"]`); if (pb) pb.classList.add('active');
+  if (child === 'overview') setTimeout(renderCharts, 50);
+  if (child === 'prov_all') renderRegional('prov_an');
+  if (child === 'city_all') renderRegional('city_an');
+}
+
 document.querySelectorAll('.tab-btn').forEach(btn=>{
   btn.addEventListener('click',()=>{
     const tab = btn.dataset.tab;
     if (LEVEL1.includes(tab)) {
-      // 一级选项卡：隐藏所有一级面板，显示对应
       LEVEL1.forEach(id => document.getElementById(id).classList.remove('active'));
       document.getElementById(tab).classList.add('active');
-      // 同步二级按钮状态（city 内的二级按钮）
       document.querySelectorAll('.tab-btn[data-tab]').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      // 进入 city 时默认显示 overview
-      if (tab === 'city') {
-        LEVEL2.forEach(id => document.getElementById(id).classList.remove('active'));
-        document.getElementById('overview').classList.add('active');
-        document.querySelector('.tab-btn[data-tab="overview"]').classList.add('active');
-        setTimeout(renderCharts, 50);
-      }
-      if (tab === 'province') { /* 省级表在 init 时已渲染 */ }
+      if (tab === 'city')     { activateL2('city', 'overview'); }
+      if (tab === 'province') { activateL2('province', 'prov_deep'); }
       if (tab === 'national') { renderNational(); }
-      if (tab === 'prov_an') { renderRegional('prov_an'); }
-      if (tab === 'city_an') { renderRegional('city_an'); }
-    } else if (LEVEL2.includes(tab)) {
-      // 二级选项卡：切换 city 内面板
-      LEVEL2.forEach(id => document.getElementById(id).classList.remove('active'));
-      document.getElementById(tab).classList.add('active');
-      document.querySelectorAll('.tab-btn[data-tab]').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      // ⚠️修复：二级面板(overview/metrics/risks/verify)物理嵌套在 #city 内，
-      // 必须同时激活 #city 面板，否则从"指标系统"进入二级页会整页空白
+    } else if (ALL_L2.includes(tab)) {
+      const parent = PARENT_OF[tab];
       LEVEL1.forEach(id => document.getElementById(id).classList.remove('active'));
-      document.getElementById('city').classList.add('active');
-      document.querySelector('.tab-btn[data-tab="city"]').classList.add('active');
-      if (tab === 'overview') setTimeout(renderCharts, 50);
+      document.getElementById(parent).classList.add('active');
+      activateL2(parent, tab);
     }
   });
 });
